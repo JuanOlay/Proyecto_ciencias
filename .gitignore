@@ -1,0 +1,13 @@
+# Ignorar carpeta de configuración de VSCode
+.vscode/
+
+# Ignorar archivos ejecutables
+*.exe
+
+# Ignorar archivos objeto (compilación)
+*.o
+
+# Ignorar archivos Makefile
+Makefile
+makefile
+MAKEFILE

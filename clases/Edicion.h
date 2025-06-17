@@ -4,26 +4,18 @@
 #include <iostream>
 using namespace std;
 
-class Edicion {
-public:
-    int numeroEdicion;
-    char fechaPublicacion[20];
-    int idEditorial;
-    char ciudadPublicacion[50];
+struct Edicion {
+    int numero_edicion;
+    char fecha_publicacion[20];
+    int id_editorial;
+    char ciudad_publicacion[50];
 
     Edicion() {
-        numeroEdicion = 0;
-        fechaPublicacion[0] = '\0';
-        idEditorial = 0;
-        ciudadPublicacion[0] = '\0';
-    }
-
-    void mostrar() {
-        cout << "Número de edición: " << numeroEdicion << endl;
-        cout << "Fecha de publicación: " << fechaPublicacion << endl;
-        cout << "ID de la editorial: " << idEditorial << endl;
-        cout << "Ciudad de publicación: " << ciudadPublicacion << endl;
+        numero_edicion = 0;
+        fecha_publicacion[0] = '\0';
+        id_editorial = 0;
+        ciudad_publicacion[0] = '\0';
     }
 };
 
-#endif
+#endif // EDICION_H

@@ -10,35 +10,6 @@ Melissa
 
 #include <iostream>
 
-template <typename T>
-class NodoAVL {
-    /*
-    Clase que representa un nodo en el árbol AVL.
-
-    Atributos:
-    - dato: Valor almacenado en el nodo.
-    - izquierdo: Puntero al subárbol izquierdo.
-    - derecho: Puntero al subárbol derecho.
-    - altura: Altura del nodo en el árbol.
-
-    Metodos:
-    - Constructor: Inicializa el nodo con un valor y establece los punteros izquierdo y derecho en nullptr.
-    - Destructor: Libera la memoria del nodo y sus hijos.
-    */
-
-public:
-    T dato;
-    NodoAVL* izquierdo;
-    NodoAVL* derecho;
-    int altura;
-
-    // Constructor
-    NodoAVL(const T& dato) {
-        this->dato = dato;
-        izquierdo = derecho = nullptr;
-        altura = 1;
-    }
-};
 
 template <typename T>
 class ArbolAVL {
@@ -56,19 +27,54 @@ class ArbolAVL {
     */
    
 private:
-    NodoAVL<T>* raiz;
+    struct NodoAVL {
+    /*
+    Estructura que representa un nodo en el árbol AVL.
+    Atributos:
+    - dato: El valor almacenado en el nodo.
+    - izquierdo: Puntero al subárbol izquierdo.
+    - derecho: Puntero al subárbol derecho.
+    - altura: La altura del nodo, utilizada para mantener el balance del árbol.
+    */
+    T dato;
+    NodoAVL* izquierdo;
+    NodoAVL* derecho;
+    int altura;
+    NodoAVL(const T valor) : dato(valor), izquierdo(nullptr), derecho(nullptr), altura(1) {}
+    };
 
-    int altura(NodoAVL<T>* nodo) {
+    NodoAVL* raiz;
+
+    int altura(NodoAVL* nodo) {
+        /*
+        Función que devuelve la altura de un nodo.
+        Si el nodo es nullptr, devuelve 0. De lo contrario, devuelve la altura del nodo.
+        */
         return nodo ? nodo->altura : 0;
     }
 
-    int balance(NodoAVL<T>* nodo) {
+    int balance(NodoAVL* nodo) {
+        /*
+        Función que devuelve el factor de balance de un nodo.
+        El factor de balance se calcula como la altura del subárbol izquierdo menos la altura del subárbol derecho.
+        */
         return nodo ? altura(nodo->izquierdo) - altura(nodo->derecho) : 0;
     }
 
-    NodoAVL<T>* rotacionDerecha(NodoAVL<T>* y) {
-        NodoAVL<T>* x = y->izquierdo;
-        NodoAVL<T>* T2 = x->derecho;
+    NodoAVL* rotacionDerecha(NodoAVL* y) {
+        /*
+        Realiza una rotación a la derecha en el subárbol con raíz en y.
+        Este caso ocurre cuando el subárbol izquierdo es más alto que el derecho.
+        Se ajustan los punteros y se recalculan las alturas de los nodos.
+        Devuelve el nuevo nodo raíz del subárbol.
+        1. y se convierte en el nuevo nodo raíz.
+        2. El hijo izquierdo de y (x) se convierte en el nuevo nodo raíz.
+        3. El hijo derecho de x (T2) se convierte en el hijo izquierdo de y.
+        4. Se actualizan las alturas de y y x.
+        5. Devuelve x como el nuevo nodo raíz del subárbol.
+        */
+        NodoAVL* x = y->izquierdo;
+        NodoAVL* T2 = x->derecho;
 
         x->derecho = y;
         y->izquierdo = T2;
@@ -79,9 +85,20 @@ private:
         return x;
     }
 
-    NodoAVL<T>* rotacionIzquierda(NodoAVL<T>* x) {
-        NodoAVL<T>* y = x->derecho;
-        NodoAVL<T>* T2 = y->izquierdo;
+    NodoAVL* rotacionIzquierda(NodoAVL* x) {
+        /*
+        Realiza una rotación a la izquierda en el subárbol con raíz en x.
+        Este caso ocurre cuando el subárbol derecho es más alto que el izquierdo.
+        Se ajustan los punteros y se recalculan las alturas de los nodos.
+        Devuelve el nuevo nodo raíz del subárbol.
+        1. x se convierte en el nuevo nodo raíz.
+        2. El hijo derecho de x (y) se convierte en el nuevo nodo raíz.
+        3. El hijo izquierdo de y (T2) se convierte en el hijo derecho de x.
+        4. Se actualizan las alturas de x y y.
+        5. Devuelve y como el nuevo nodo raíz del subárbol.
+        */
+        NodoAVL* y = x->derecho;
+        NodoAVL* T2 = y->izquierdo;
 
         y->izquierdo = x;
         x->derecho = T2;
@@ -92,8 +109,18 @@ private:
         return y;
     }
 
-    NodoAVL<T>* insertar(NodoAVL<T>* nodo, const T& dato) {
-        if (!nodo) return new NodoAVL<T>(dato);
+    NodoAVL* insertar(NodoAVL* nodo, const T dato) {
+        /*
+        Función que inserta un nuevo dato en el árbol AVL.
+        Si el nodo es nullptr, crea un nuevo nodo con el dato.
+        Si el dato es menor que el dato del nodo actual, se inserta en el subárbol izquierdo.
+        Si el dato es mayor, se inserta en el subárbol derecho.
+        Si el dato ya existe, no se inserta (no se permiten duplicados).
+        Después de insertar, se actualiza la altura del nodo y se verifica el balanceo.
+        Si el árbol está desbalanceado, se realizan las rotaciones necesarias para restaurar el balance.
+        Devuelve el nuevo nodo raíz del subárbol.
+        */
+        if (!nodo) return new NodoAVL(dato);
 
         if (dato < nodo->dato)
             nodo->izquierdo = insertar(nodo->izquierdo, dato);
@@ -126,13 +153,17 @@ private:
         return nodo;
     }
 
-    NodoAVL<T>* encontrarMinimo(NodoAVL<T>* nodo) {
+    NodoAVL* encontrarMinimo(NodoAVL* nodo) {
+        /*
+        Función que encuentra el nodo con el valor mínimo en un árbol AVL.
+        Se recorre el subárbol izquierdo hasta encontrar el nodo más a la izquierda.
+        */
         while (nodo->izquierdo != nullptr)
             nodo = nodo->izquierdo;
         return nodo;
     }
 
-    NodoAVL<T>* eliminar(NodoAVL<T>* nodo, const T& dato) {
+    NodoAVL* eliminar(NodoAVL* nodo, const T dato) {
         // Paso 1: Realizar eliminación estándar de BST
         if (!nodo) return nodo;
 
@@ -144,7 +175,7 @@ private:
             // Nodo a eliminar encontrado
             if (!nodo->izquierdo || !nodo->derecho) {
                 // Caso 1: Nodo con 0 o 1 hijo
-                NodoAVL<T>* temp = nodo->izquierdo ? nodo->izquierdo : nodo->derecho;
+                NodoAVL* temp = nodo->izquierdo ? nodo->izquierdo : nodo->derecho;
                 
                 if (!temp) {
                     // Caso sin hijos
@@ -158,7 +189,7 @@ private:
             } else {
                 // Caso 2: Nodo con dos hijos
                 // Obtener el sucesor inorden (el menor en el subárbol derecho)
-                NodoAVL<T>* temp = encontrarMinimo(nodo->derecho);
+                NodoAVL* temp = encontrarMinimo(nodo->derecho);
                 
                 // Copiar el dato del sucesor inorden a este nodo
                 nodo->dato = temp->dato;
@@ -203,7 +234,7 @@ private:
         return nodo;
     }
 
-    void inOrden(NodoAVL<T>* nodo) const {
+    void inOrden(NodoAVL* nodo) const {
         if (nodo) {
             inOrden(nodo->izquierdo);
             std::cout << nodo->dato << " ";
@@ -211,7 +242,7 @@ private:
         }
     }
 
-    NodoAVL<T>* buscar(NodoAVL<T>* nodo, const T& clave) const {
+    NodoAVL* buscar(NodoAVL* nodo, const T clave) const {
         if (!nodo || nodo->dato == clave) return nodo;
 
         if (clave < nodo->dato)
@@ -220,7 +251,7 @@ private:
             return buscar(nodo->derecho, clave);
     }
 
-    void liberar(NodoAVL<T>* nodo) {
+    void liberar(NodoAVL* nodo) {
         if (!nodo) return;
         liberar(nodo->izquierdo);
         liberar(nodo->derecho);
@@ -234,15 +265,15 @@ public:
         liberar(raiz);
     }
 
-    void insertar(const T& dato) {
+    void insertar(const T dato) {
         raiz = insertar(raiz, dato);
     }
 
-    void eliminar(const T& dato) {
+    void eliminar(const T dato) {
         raiz = eliminar(raiz, dato);
     }
 
-    bool buscar(const T& clave) const {
+    bool buscar(const T clave) const {
         return buscar(raiz, clave) != nullptr;
     }
 

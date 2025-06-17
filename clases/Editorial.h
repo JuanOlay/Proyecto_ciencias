@@ -2,28 +2,36 @@
 #define EDITORIAL_H
 
 #include <iostream>
+#include <cstring> // para strcmp
 using namespace std;
 
-class Editorial {
-public:
-    int idEditorial;
-    char nombre[50];
-    char ciudadPrincipal[50];
-    char paisPrincipal[50];
+struct Editorial{
+    int id_editorial;
+    char nombre_editorial[50];
+    char ciudad_principal[50];
+    char pais_principal[50];
 
     Editorial() {
-        idEditorial = 0;
-        nombre[0] = '\0';
-        ciudadPrincipal[0] = '\0';
-        paisPrincipal[0] = '\0';
+        id_editorial = 0;
+        nombre_editorial[0] = '\0';
+        ciudad_principal[0] = '\0';
+        pais_principal[0] = '\0';
     }
 
     void mostrar() {
-        cout << "ID Editorial: " << idEditorial << endl;
-        cout << "Nombre: " << nombre << endl;
-        cout << "Ciudad principal: " << ciudadPrincipal << endl;
-        cout << "País principal: " << paisPrincipal << endl;
+        cout << "ID Editorial: " << id_editorial << endl;
+        cout << "Nombre: " << nombre_editorial << endl;
+        cout << "Ciudad principal: " << ciudad_principal << endl;
+        cout << "País principal: " << pais_principal << endl;
     }
 };
 
-#endif
+inline bool operator<(const Editorial& a, const Editorial& b) {
+    return strcmp(a.nombre_editorial, b.nombre_editorial) < 0;
+}
+
+inline bool operator>(const Editorial& a, const Editorial& b) {
+    return strcmp(a.nombre_editorial, b.nombre_editorial) > 0;
+}
+
+#endif // EDITORIAL_H

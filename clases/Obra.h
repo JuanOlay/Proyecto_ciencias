@@ -2,43 +2,33 @@
 #define OBRA_H
 
 #include <iostream>
+#include <string>
+#include <cstring> // para strcmp
 #include "Edicion.h"
 using namespace std;
 
-class Obra {
-public:
-    char nombreDocumento[100];
-    char tipoPoesia[30];
-    int idAutor;
-    Edicion ediciones[10]; // Se permite un máximo de 10 ediciones por obra
-    int cantidadEdiciones;
+struct Obra{
+    char nombre_documento[100];
+    string tipo_poesia; // decima,soneto,himno,haiku,romance,octava real,lira,verso libre.
+    int id_autor;
+    Edicion ediciones[10];
+    int cantidad_ediciones;
 
     Obra() {
-        nombreDocumento[0] = '\0';
-        tipoPoesia[0] = '\0';
-        idAutor = 0;
-        cantidadEdiciones = 0;
+        nombre_documento[0] = '\0';
+        tipo_poesia[0] = '\0';
+        id_autor = 0;
+        cantidad_ediciones = 0;
     }
 
-    void agregarEdicion(const Edicion& ed) {
-        if (cantidadEdiciones < 10) {
-            ediciones[cantidadEdiciones] = ed;
-            cantidadEdiciones++;
-        } else {
-            cout << "No se pueden agregar más ediciones a esta obra." << endl;
-        }
-    }
-
-    void mostrar() {
-        cout << "Nombre del documento: " << nombreDocumento << endl;
-        cout << "Tipo de poesía: " << tipoPoesia << endl;
-        cout << "ID del autor: " << idAutor << endl;
-        cout << "Ediciones:" << endl;
-        for (int i = 0; i < cantidadEdiciones; i++) {
-            cout << "  Edición " << (i + 1) << ":" << endl;
-            ediciones[i].mostrar();
-        }
-    }
 };
 
-#endif
+inline bool operator<(const Obra& a, const Obra& b) {
+    return strcmp(a.nombre_documento, b.nombre_documento) < 0;
+}
+
+inline bool operator>(const Obra& a, const Obra& b) {
+    return strcmp(a.nombre_documento, b.nombre_documento) > 0;
+}
+
+#endif // OBRA_H

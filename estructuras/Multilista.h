@@ -9,9 +9,10 @@ Melissa
 #ifndef MULTILISTA_H
 #define MULTILISTA_H
 
-#include "NodoMultilista.h"
 #include "Lista.h"
 #include <iostream>
+
+using namespace std;
 
 template <class T>
 class Multilista {
@@ -20,30 +21,51 @@ class Multilista {
     Cada nodo contiene un dato y una sublista asociada.
     
     Atributos:
-    - cabeza: Puntero al primer nodo de la multilista principal.
-    - cola: Puntero al último nodo de la multilista principal.
-    - tamano: Número de nodos en la multilista principal.
+    - listaBase: Lista que maneja los nodos principales de la multilista.
+    - sublistas: Mapa de sublistas asociadas a cada nodo principal.
     
-    Métodos:
-    - Constructor: Inicializa la multilista vacía.
-    - Destructor: Libera la memoria de todos los nodos y sublistas.
-    - getTamano: Retorna el tamaño de la multilista principal.
-    - estaVacia: Verifica si la multilista está vacía.
-    - insertarInicio: Inserta un nuevo nodo al inicio de la multilista.
-    - insertarFinal: Inserta un nuevo nodo al final de la multilista.
-    - insertarEnSublista: Inserta un elemento en la sublista de un nodo específico.
-    - eliminar: Elimina un nodo de la multilista principal.
-    - eliminarDeSublista: Elimina un elemento de una sublista específica.
-    - buscar: Busca un nodo en la multilista principal.
-    - buscarEnSublista: Busca un elemento en la sublista de un nodo específico.
-    - mostrar: Muestra toda la multilista con sus sublistas.
-    - mostrarSublista: Muestra la sublista de un nodo específico.
+    Métodos principales:
+    - Constructor/Destructor: Manejo de memoria
+    - getTamano/estaVacia: Información básica
+    - insertar: Inserta en la lista principal (delegado a Lista)
+    - insertarEnSublista: Inserta en una sublista específica
+    - eliminar: Elimina de la lista principal
+    - eliminarDeSublista: Elimina de una sublista específica
+    - buscar: Busca en la lista principal
+    - buscarEnSublista: Busca en una sublista específica
+    - mostrar: Muestra toda la estructura
+    - mostrarSublista: Muestra una sublista específica
     */
 
 private:
-    NodoMultilista<T>* cabeza;
-    NodoMultilista<T>* cola;
+    struct NodoMultilista {
+        T dato;
+        NodoMultilista* siguiente;
+        NodoMultilista* anterior;
+        Lista<T>* sublista;
+
+        NodoMultilista(T valor) : dato(valor), siguiente(nullptr), anterior(nullptr), sublista(new Lista<T>()) {}
+        
+        ~NodoMultilista() {
+            delete sublista;
+        }
+    };
+
+    NodoMultilista* cabeza;
+    NodoMultilista* cola;
     int tamano;
+
+    // Método auxiliar para buscar nodo
+    NodoMultilista* buscarNodo(T dato) const {
+        NodoMultilista* actual = cabeza;
+        while (actual != nullptr) {
+            if (actual->dato == dato) {
+                return actual;
+            }
+            actual = actual->siguiente;
+        }
+        return nullptr;
+    }
 
 public:
     // Constructor
@@ -52,7 +74,7 @@ public:
     // Destructor
     ~Multilista() {
         while (cabeza != nullptr) {
-            NodoMultilista<T>* temp = cabeza;
+            NodoMultilista* temp = cabeza;
             cabeza = cabeza->siguiente;
             delete temp;
         }
@@ -60,7 +82,7 @@ public:
         tamano = 0;
     }
 
-    // Métodos básicos de información
+    // Información básica
     int getTamano() const { 
         return tamano; 
     }
@@ -69,25 +91,18 @@ public:
         return cabeza == nullptr; 
     }
 
+    // OPERACIONES EN LA LISTA PRINCIPAL ===
+    
     // Inserción en la multilista principal
-    void insertarInicio(T dato) {
-        NodoMultilista<T>* nuevoNodo = new NodoMultilista<T>(dato);
+    void insertar(T dato, bool alInicio = false) {
+        NodoMultilista* nuevoNodo = new NodoMultilista(dato);
         
         if (estaVacia()) {
             cabeza = cola = nuevoNodo;
-        } else {
+        } else if (alInicio) {
             nuevoNodo->siguiente = cabeza;
             cabeza->anterior = nuevoNodo;
             cabeza = nuevoNodo;
-        }
-        tamano++;
-    }
-
-    void insertarFinal(T dato) {
-        NodoMultilista<T>* nuevoNodo = new NodoMultilista<T>(dato);
-        
-        if (estaVacia()) {
-            cabeza = cola = nuevoNodo;
         } else {
             cola->siguiente = nuevoNodo;
             nuevoNodo->anterior = cola;
@@ -96,34 +111,14 @@ public:
         tamano++;
     }
 
-    // Inserción en sublistas
-    bool insertarEnSublista(T datoNodo, T datoSublista) {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
-        if (nodo != nullptr) {
-            nodo->sublista->insertarFinal(datoSublista);
-            return true;
-        }
-        return false;
-    }
-
-    bool insertarEnSublistaInicio(T datoNodo, T datoSublista) {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
-        if (nodo != nullptr) {
-            nodo->sublista->insertarInicio(datoSublista);
-            return true;
-        }
-        return false;
-    }
-
     // Eliminación de la multilista principal
     bool eliminar(T dato) {
         if (estaVacia()) return false;
 
-        NodoMultilista<T>* actual = cabeza;
+        NodoMultilista* actual = cabeza;
         
         while (actual != nullptr) {
             if (actual->dato == dato) {
-                // Actualizar enlaces
                 if (actual->anterior != nullptr) {
                     actual->anterior->siguiente = actual->siguiente;
                 } else {
@@ -145,9 +140,31 @@ public:
         return false;
     }
 
-    // Eliminación de sublistas
+    // Búsqueda en la multilista principal
+    T* buscar(T dato) const {
+        NodoMultilista* nodo = buscarNodo(dato);
+        return (nodo != nullptr) ? &nodo->dato : nullptr;
+    }
+
+    // OPERACIONES EN SUBLISTAS (USANDO MÉTODOS DE LISTA) ===
+    
+    // Inserción en sublista 
+    bool insertarEnSublista(T datoNodo, T datoSublista, bool alInicio = false) {
+        NodoMultilista* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            if (alInicio) {
+                nodo->sublista->insertarInicio(datoSublista);
+            } else {
+                nodo->sublista->insertarFinal(datoSublista);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // Eliminación de sublista 
     bool eliminarDeSublista(T datoNodo, T datoSublista) {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        NodoMultilista* nodo = buscarNodo(datoNodo);
         if (nodo != nullptr) {
             nodo->sublista->eliminar(datoSublista);
             return true;
@@ -155,100 +172,98 @@ public:
         return false;
     }
 
-    // Búsqueda en la multilista principal
-    NodoMultilista<T>* buscarNodo(T dato) const {
-        NodoMultilista<T>* actual = cabeza;
-        while (actual != nullptr) {
-            if (actual->dato == dato) {
-                return actual;
-            }
-            actual = actual->siguiente;
-        }
-        return nullptr;
-    }
-
-    T* buscar(T dato) const {
-        NodoMultilista<T>* nodo = buscarNodo(dato);
-        return (nodo != nullptr) ? &nodo->dato : nullptr;
-    }
-
-    // Búsqueda en sublistas
+    // Búsqueda en sublista 
     bool buscarEnSublista(T datoNodo, T datoSublista) const {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        NodoMultilista* nodo = buscarNodo(datoNodo);
         if (nodo != nullptr) {
             return nodo->sublista->buscar(datoSublista) != nullptr;
         }
         return false;
     }
 
-    // Mostrar la multilista completa
+    // MÉTODOS DE INFORMACIÓN DE SUBLISTAS ===
+    
+    // Obtener tamaño de sublista 
+    int getTamanoSublista(T datoNodo) const {
+        NodoMultilista* nodo = buscarNodo(datoNodo);
+        return (nodo != nullptr) ? nodo->sublista->getTamano() : -1;
+    }
+
+    // Verificar si sublista está vacía 
+    bool sublistaEstaVacia(T datoNodo) const {
+        NodoMultilista* nodo = buscarNodo(datoNodo);
+        return (nodo != nullptr) ? nodo->sublista->estaVacia() : true;
+    }
+
+    // MÉTODOS DE VISUALIZACIÓN ===
+    
+    // Mostrar toda la multilista
     void mostrar() const {
         if (estaVacia()) {
-            std::cout << "Multilista vacía" << std::endl;
+            cout << "Multilista vacía" << endl;
             return;
         }
 
-        NodoMultilista<T>* actual = cabeza;
-        std::cout << "=== MULTILISTA ===" << std::endl;
+        NodoMultilista* actual = cabeza;
+        cout << "------------MULTILISTA-------------" << endl;
         
         while (actual != nullptr) {
-            std::cout << "Nodo principal: " << actual->dato << std::endl;
-            std::cout << "  Sublista -> ";
+            cout << "Nodo principal: " << actual->dato << endl;
+            cout << "  ";
             
+            // Delegar la visualización a la Lista
             if (actual->sublista->estaVacia()) {
-                std::cout << "vacía" << std::endl;
+                cout << "Sublista vacía" << endl;
             } else {
                 actual->sublista->mostrar();
             }
             
-            std::cout << std::endl;
+            cout << endl;
             actual = actual->siguiente;
         }
-        std::cout << "=================" << std::endl;
+        cout << "-------------------" << endl;
     }
 
     // Mostrar solo una sublista específica
     void mostrarSublista(T datoNodo) const {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        NodoMultilista* nodo = buscarNodo(datoNodo);
         if (nodo != nullptr) {
-            std::cout << "Sublista del nodo " << datoNodo << ": ";
+            cout << "Sublista del nodo " << datoNodo << ": ";
             nodo->sublista->mostrar();
         } else {
-            std::cout << "Nodo " << datoNodo << " no encontrado" << std::endl;
+            cout << "Nodo " << datoNodo << " no encontrado" << endl;
         }
     }
 
-    // Mostrar solo la multilista principal (sin sublistas)
+    // Mostrar solo la multilista principal
     void mostrarPrincipal() const {
         if (estaVacia()) {
-            std::cout << "Multilista vacía" << std::endl;
+            cout << "Multilista vacía" << endl;
             return;
         }
 
-        NodoMultilista<T>* actual = cabeza;
-        std::cout << "Multilista principal: ";
+        NodoMultilista* actual = cabeza;
+        cout << "Multilista principal: ";
         
         while (actual != nullptr) {
-            std::cout << actual->dato;
+            cout << actual->dato;
             if (actual->siguiente != nullptr) {
-                std::cout << " <-> ";
+                cout << " <-> ";
             }
             actual = actual->siguiente;
         }
-        std::cout << std::endl;
+        cout << endl;
     }
+/*
+    // MÉTODO DE ACCESO DIRECTO A SUBLISTAS 
+    
+    // Obtener acceso directo a una sublista para operaciones más complejas
+    Lista<T>* obtenerSublista(T datoNodo) const {
+        NodoMultilista* nodo = buscarNodo(datoNodo);
+        return (nodo != nullptr) ? nodo->sublista : nullptr;
+    }
+*/
 
-    // Obtener el tamaño de una sublista específica
-    int getTamanoSublista(T datoNodo) const {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
-        return (nodo != nullptr) ? nodo->sublista->getTamano() : -1;
-    }
-
-    // Verificar si una sublista está vacía
-    bool sublistaEstaVacia(T datoNodo) const {
-        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
-        return (nodo != nullptr) ? nodo->sublista->estaVacia() : true;
-    }
 };
 
 #endif // MULTILISTA_H

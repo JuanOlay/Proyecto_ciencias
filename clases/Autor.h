@@ -2,52 +2,43 @@
 #define AUTOR_H
 
 #include <iostream>
+#include <string>
 using namespace std;
 
-class Autor {
-public:
-    int id;
+struct Autor {
+    int id_autor;
     char nombre[50];
     char apellido[50];
     char sexo; // 'F' o 'M'
-    int diaNacimiento;
-    int mesNacimiento;
-    int anioNacimiento;
-    char ciudadNacimiento[50];
-    char paisNacimiento[50];
-    char ciudadResidencia[50];
-    char formacion[30]; // literatura, artes, etc.
-    int anioInicio;
-    int anioPrimeraObra;
+    char fecha_nacimiento[20]; // formato: ddmmaaaa
+    char ciudad_nacimiento[50];
+    char pais_nacimiento[50];
+    char ciudad_residencia[50];
+    string formacion; // literatura, artes,ciencias sociales,ingenierias,areas de salud,jurisprudencia,otros
+    int anio_inicio_literatura;
+    int anio_primera_obra;
 
     Autor() {
-        id = 0;
+        id_autor = 0;
         nombre[0] = '\0';
         apellido[0] = '\0';
         sexo = ' ';
-        diaNacimiento = 0;
-        mesNacimiento = 0;
-        anioNacimiento = 0;
-        ciudadNacimiento[0] = '\0';
-        paisNacimiento[0] = '\0';
-        ciudadResidencia[0] = '\0';
+        fecha_nacimiento[0] = '\0';
+        ciudad_nacimiento[0] = '\0';
+        pais_nacimiento[0] = '\0';
+        ciudad_residencia[0] = '\0';
         formacion[0] = '\0';
-        anioInicio = 0;
-        anioPrimeraObra = 0;
+        anio_inicio_literatura = 0;
+        anio_primera_obra = 0;
+    }
+    bool operator<(const Autor& otro) const {
+        return id_autor < otro.id_autor; // o cualquier otro criterio
     }
 
-    void mostrar() {
-        cout << "ID: " << id << endl;
-        cout << "Nombre: " << nombre << " " << apellido << endl;
-        cout << "Sexo: " << sexo << endl;
-        cout << "Fecha de nacimiento: " << diaNacimiento << "/" << mesNacimiento << "/" << anioNacimiento << endl;
-        cout << "Ciudad de nacimiento: " << ciudadNacimiento << endl;
-        cout << "Pais de nacimiento: " << paisNacimiento << endl;
-        cout << "Ciudad de residencia: " << ciudadResidencia << endl;
-        cout << "Formacion: " << formacion << endl;
-        cout << "Año de inicio en la literatura: " << anioInicio << endl;
-        cout << "Año de publicación de su primera obra: " << anioPrimeraObra << endl;
+    bool operator>(const Autor& otro) const {
+        return id_autor > otro.id_autor;
     }
+
 };
 
-#endif // AUTOR_H
+#endif // AUTOR_H 
