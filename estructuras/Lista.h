@@ -52,10 +52,32 @@ public:
     }
 
     // Métodos básicos
-    int getTamano() const { return tamano; }
-    bool estaVacia() const { return cabeza == nullptr; }
+    int getTamano() const { 
+        /*
+        Método para obtener el tamaño de la lista.
+        Retorna el tamaño actual de la lista.
+        Parámetros: Ninguno
+        Retorno: El tamaño de la lista.
+        */
+        return tamano; 
+    }
+    bool estaVacia() const {
+        /*
+        Método para verificar si la lista está vacía.
+        Retorna true si la lista está vacía, o false si no lo está.
+        Parámetros: Ninguno
+        Retorno: true si la lista está vacía, o false si no lo está.
+        */
+        return cabeza == nullptr;
+    }
 
     void insertarInicio(T info) {
+        /*
+        Método para insertar un nuevo nodo al inicio de la lista.
+        Parámetros:
+        - info: El valor a insertar en la lista.
+        Retorno: Ninguno
+        */
         Nodo<T>* nuevoNodo = new Nodo<T>(info);
         if (estaVacia()) {
             cabeza = cola = nuevoNodo;
@@ -67,6 +89,12 @@ public:
     }
 
     void insertarFinal(T info) {
+        /*
+        Método para insertar un nuevo nodo al final de la lista.
+        Parámetros:
+        - info: El valor a insertar en la lista.
+        Retorno: Ninguno
+        */
         Nodo<T>* nuevoNodo = new Nodo<T>(info);
         if (estaVacia()) {
             cabeza = cola = nuevoNodo;
@@ -78,6 +106,12 @@ public:
     }
 
     void eliminar(T info) {
+        /*
+        Método para eliminar un nodo con un valor específico de la lista.
+        Parámetros:
+        - info: El valor del nodo a eliminar de la lista.
+        Retorno: Ninguno
+        */
         if (estaVacia()) return;
 
         if (cabeza->dato == info) {
@@ -104,6 +138,15 @@ public:
     }
 
     T* buscar(T info) const {
+        /*
+        Método que busca un nodo en la lista por su dato.
+        Retorna un puntero al dato si se encuentra, o nullptr si no se encuentra.
+        Parámetros:
+        - info: El valor a buscar en la lista.
+        Retorno:
+        - Un puntero al dato si se encuentra, o nullptr si no se encuentra.
+        Si la lista está vacía, retorna nullptr.
+        */
         Nodo<T>* actual = cabeza;
         while (actual != nullptr) {
             if (actual->dato == info) return &actual->dato;
@@ -113,6 +156,12 @@ public:
     }
 
     void mostrar() const {
+        /*
+        Método para mostrar toda la lista.
+        Recorre todos los nodos y muestra sus datos.
+        Parámetros: Ninguno
+        Retorno: Ninguno
+        */
         if (estaVacia()) {
             std::cout << "Lista vacía" << std::endl;
             return;

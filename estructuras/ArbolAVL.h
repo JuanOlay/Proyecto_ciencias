@@ -164,6 +164,20 @@ private:
     }
 
     NodoAVL* eliminar(NodoAVL* nodo, const T dato) {
+        /*
+        Función que elimina un nodo con un valor específico de un árbol AVL.
+        Si el nodo es nullptr, retorna nullptr.
+        Si el dato es menor que el dato del nodo actual, se elimina en el subárbol izquierdo.
+        Si el dato es mayor, se elimina en el subárbol derecho.
+        Después de eliminar, se actualiza la altura del nodo y se verifica el balanceo.
+        Si el árbol está desbalanceado, se realizan las rotaciones necesarias para restaurar el balance.
+        Devuelve el nuevo nodo raíz del subárbol.
+        Parametros:
+        - nodo: Puntero al nodo actual del árbol.
+        - dato: El valor del nodo a eliminar.
+        Retorno:
+        - Puntero al nuevo nodo raíz del subárbol después de la eliminación.
+        */
         // Paso 1: Realizar eliminación estándar de BST
         if (!nodo) return nodo;
 
@@ -235,6 +249,13 @@ private:
     }
 
     void inOrden(NodoAVL* nodo) const {
+        /*
+        Método para realizar un recorrido en orden del árbol AVL.
+        Muestra los nodos en orden ascendente.
+        Parámetros:
+        - nodo: Puntero al nodo actual del árbol.
+        Retorno: Ninguno
+        */
         if (nodo) {
             inOrden(nodo->izquierdo);
             std::cout << nodo->dato << " ";
@@ -243,6 +264,15 @@ private:
     }
 
     NodoAVL* buscar(NodoAVL* nodo, const T clave) const {
+        /*
+        Método que busca un nodo en el árbol AVL por su clave.
+        Retorna un puntero al nodo si se encuentra, o nullptr si no se encuentra.
+        Parámetros:
+        - nodo: Puntero al nodo actual del árbol.
+        - clave: La clave a buscar en el árbol.
+        Retorno:
+        - Un puntero al nodo si se encuentra, o nullptr si no se encuentra.
+        */
         if (!nodo || nodo->dato == clave) return nodo;
 
         if (clave < nodo->dato)

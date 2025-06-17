@@ -1,3 +1,9 @@
+/*
+Autores:
+Juan Felipe Guevara Olaya jfguevarao@udistrital.edu.co
+Jean Pierre
+Melissa
+*/
 #ifndef AUTOR_H
 #define AUTOR_H
 
