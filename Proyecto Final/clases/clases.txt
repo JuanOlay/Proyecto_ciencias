@@ -1,0 +1,151 @@
+#ifndef AUTOR_H
+#define AUTOR_H
+
+#include <iostream>
+using namespace std;
+
+class Autor {
+public:
+    int id_autor;
+    char nombre[50];
+    char apellido[50];
+    char sexo; // 'F' o 'M'
+    char fecha_nacimiento[20]; // formato: ddmmaaaa
+    char ciudad_nacimiento[50];
+    char pais_nacimiento[50];
+    char ciudad_residencia[50];
+    char formacion[30]; // literatura, artes, etc.
+    int anio_inicio_literatura;
+    int anio_primera_obra;
+
+    Autor() {
+        id_autor = 0;
+        nombre[0] = '\0';
+        apellido[0] = '\0';
+        sexo = ' ';
+        fecha_nacimiento[0] = '\0';
+        ciudad_nacimiento[0] = '\0';
+        pais_nacimiento[0] = '\0';
+        ciudad_residencia[0] = '\0';
+        formacion[0] = '\0';
+        anio_inicio_literatura = 0;
+        anio_primera_obra = 0;
+    }
+
+    void mostrar() const {
+        cout << "ID Autor: " << id_autor << endl;
+        cout << "Nombre: " << nombre << endl;
+        cout << "Apellido: " << apellido << endl;
+        cout << "Sexo: " << sexo << endl;
+        cout << "Fecha de Nacimiento: " << fecha_nacimiento << endl;
+        cout << "Ciudad de Nacimiento: " << ciudad_nacimiento << endl;
+        cout << "Pais de Nacimiento: " << pais_nacimiento << endl;
+        cout << "Ciudad de Residencia: " << ciudad_residencia << endl;
+        cout << "Formacion: " << formacion << endl;
+        cout << "Año Inicio Literatura: " << anio_inicio_literatura << endl;
+        cout << "Año Primera Obra: " << anio_primera_obra << endl;
+    }
+};
+#endif // AUTOR_H
+#ifndef EDICION_H
+#define EDICION_H
+
+#include <iostream>
+using namespace std;
+
+class Edicion {
+public:
+    int numero_edicion;
+    char fecha_publicacion[20];
+    int id_editorial;
+    char ciudad_publicacion[50];
+
+    Edicion() {
+        numero_edicion = 0;
+        fecha_publicacion[0] = '\0';
+        id_editorial = 0;
+        ciudad_publicacion[0] = '\0';
+    }
+
+    void mostrar() {
+        cout << "Número de edición: " << numero_edicion << endl;
+        cout << "Fecha de publicación: " << fecha_publicacion << endl;
+        cout << "ID de la editorial: " << id_editorial << endl;
+        cout << "Ciudad de publicación: " << ciudad_publicacion << endl;
+    }
+};
+
+#endif
+#ifndef EDITORIAL_H
+#define EDITORIAL_H
+
+#include <iostream>
+using namespace std;
+
+class Editorial {
+public:
+    int id_editorial;
+    char nombre[50];
+    char ciudad_principal[50];
+    char pais_principal[50];
+
+    Editorial() {
+        id_editorial = 0;
+        nombre[0] = '\0';
+        ciudad_principal[0] = '\0';
+        pais_principal[0] = '\0';
+    }
+
+    void mostrar() {
+        cout << "ID Editorial: " << id_editorial << endl;
+        cout << "Nombre: " << nombre << endl;
+        cout << "Ciudad principal: " << ciudad_principal << endl;
+        cout << "País principal: " << pais_principal << endl;
+    }
+};
+
+#endif
+#ifndef OBRA_H
+#define OBRA_H
+
+#include <iostream>
+#include "Edicion.h"
+using namespace std;
+
+class Obra {
+public:
+    char nombre_documento[100];
+    char tipo_poesia[30]; // decima,soneto,himno,haiku,romance,octava real,lira,verso libre.
+    int id_autor;
+    Edicion ediciones[10];
+    int cantidad_ediciones;
+
+    Obra() {
+        nombre_documento[0] = '\0';
+        tipo_poesia[0] = '\0';
+        id_autor = 0;
+        cantidad_ediciones = 0;
+    }
+
+    void agregarEdicion(const Edicion& ed) {
+        if (cantidad_ediciones < 10) {
+            ediciones[cantidad_ediciones] = ed;
+            cantidad_ediciones++;
+        } else {
+            cout << "No se pueden agregar más ediciones a esta obra." << endl;
+        }
+    }
+
+    void mostrar() {
+        cout << "Nombre del documento: " << nombre_documento << endl;
+        cout << "Tipo de poesía: " << tipo_poesia << endl;
+        cout << "ID del autor: " << id_autor << endl;
+        cout << "Ediciones:" << endl;
+        for (int i = 0; i < cantidad_ediciones; i++) {
+            cout << "  Edición " << (i + 1) << ":" << endl;
+            ediciones[i].mostrar();
+        }
+    }
+};
+
+#endif
