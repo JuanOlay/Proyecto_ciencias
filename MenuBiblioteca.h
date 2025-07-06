@@ -29,14 +29,14 @@ private:
 	
 	    // Validar que el ID no se repita
 	    do {
-	        std::cout << "ID (único): ";
+	        std::cout << "ID (ï¿½nico): ";
 	        std::cin >> a.id;
 	        limpiarBuffer();
 	
 	        if (gestion.getControlAutores().buscarPorID(a.id) != nullptr) {
 	            std::cout << "Error: Ya existe un autor con ese ID. Intente nuevamente.\n";
 	        } else {
-	            break;  // ID válido
+	            break;  // ID vï¿½lido
 	        }
 	    } while (true);
 	
@@ -54,6 +54,7 @@ private:
 	
 	    return a;
 	}
+
 
     Editorial capturarDatosEditorial() {
         Editorial e;
@@ -238,6 +239,45 @@ private:
             if (opcion != 0) pausar();
         } while (opcion != 0);
     }
+    void menuEdiciones() {
+    int opcion;
+    do {
+        system("cls");
+        std::cout << "\n--- MENU EDICIONES ---\n";
+        std::cout << "1. Agregar edicion\n";
+        std::cout << "2. Mostrar ediciones\n";
+        std::cout << "3. Eliminar edicion por numero\n";
+        std::cout << "0. Volver\n";
+        std::cout << "Seleccione una opcion: ";
+        std::cin >> opcion;
+        limpiarBuffer();
+
+        switch (opcion) {
+            case 1: {
+                Edicion nuevaEdicion = capturarDatosEdicion();
+                gestion.getControlEdiciones().agregar(nuevaEdicion);
+                std::cout << "Edicion agregada exitosamente.\n";
+                break;
+            }
+            case 2: {
+                std::cout << "\n--- LISTADO DE EDICIONES ---\n";
+                gestion.getControlEdiciones().mostrarTodos();
+                break;
+            }
+            case 3: {
+                int numero;
+                std::cout << "Ingrese numero de edicion a eliminar: ";
+                std::cin >> numero;
+                gestion.getControlEdiciones().eliminarPorNumero(numero);
+                std::cout << "Operacion completada.\n";
+                break;
+            }
+            case 0: break;
+            default: std::cout << "Opcion invalida.\n";
+        }
+        if (opcion != 0) pausar();
+    } while (opcion != 0);
+}
 
     void menuConsultas() {
         int opcion;
@@ -386,10 +426,10 @@ public:
         std::cout << "1. Gestion de Autores\n";
         std::cout << "2. Gestion de Editoriales\n";
         std::cout << "3. Gestion de Obras\n";
-        std::cout << "4. Consultas Optimizadas\n";
-        std::cout << "5. Sistema y Configuracion\n";
+        std::cout << "4. Gestion de Ediciones\n";
+        std::cout << "5. Consultas Optimizadas\n";
+        std::cout << "6. Sistema y Configuracion\n";
         std::cout << "0. Salir\n";
-        std::cout << "Seleccione una opcion: ";
     }
 
 void mostrarBienvenida() {
@@ -402,7 +442,7 @@ void mostrarBienvenida() {
     std::cout << "============================================================\n\n";
 
     char respuesta;
-    std::cout << "¿Desea inicializar el sistema automaticamente? (S/N): ";
+    std::cout << "ï¿½Desea inicializar el sistema automaticamente? (S/N): ";
     std::cin >> respuesta;
     limpiarBuffer();
 
@@ -457,6 +497,15 @@ void mostrarBienvenida() {
                 }
                 case 4: {
                     if (!sistemaInicializado) {
+                        std::cout << "Debe inicializar el sistema primero (opcion 6).\n";
+                        pausar();
+                        break;
+                    }
+                    menuEdiciones();
+                    break;
+                }
+                case 5: {
+                    if (!sistemaInicializado) {
                         std::cout << "Debe inicializar el sistema primero (opcion 5).\n";
                         pausar();
                         break;
@@ -464,14 +513,14 @@ void mostrarBienvenida() {
                     menuConsultas();
                     break;
                 }
-                case 5: {
+                case 6: {
                     menuSistema();
                     break;
                 }
                 case 0: {
                     if (sistemaInicializado) {
                         char guardar;
-                        std::cout << "¿Desea guardar los cambios antes de salir? (S/N): ";
+                        std::cout << "ï¿½Desea guardar los cambios antes de salir? (S/N): ";
                         std::cin >> guardar;
                         if (std::toupper(guardar) == 'S') {
                             gestion.guardarTodosSistema();

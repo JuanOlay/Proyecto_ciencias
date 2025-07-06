@@ -8,6 +8,7 @@
 #include "ControlAutores.h"
 #include "ControlEditoriales.h"
 #include "ControlObras.h"
+#include "ControlEdiciones.h"
 #include <sstream>
 
 class GestionBiblioteca {
@@ -48,6 +49,7 @@ private:
 
     // === MÉTODOS AUXILIARES PRIVADOS ===
 
+    ControlEdiciones controlEdiciones;
     // Calcular edad basado en fecha de nacimiento
     int calcularEdad(const std::string& fechaNacimiento) const {
         if (fechaNacimiento.empty()) return 0;
@@ -106,6 +108,8 @@ public:
     ControlAutores& getControlAutores() { return controlAutores; }
     ControlEditoriales& getControlEditoriales() { return controlEditoriales; }
     ControlObras& getControlObras() { return controlObras; }
+
+    ControlEdiciones& getControlEdiciones() { return controlEdiciones; }
 
     // === MÉTODOS DE CARGA OPTIMIZADOS ===
 
@@ -336,6 +340,7 @@ public:
         controlAutores.guardarEnArchivo("autores.txt");
         controlEditoriales.guardarEnArchivo("editoriales.txt");
         controlObras.guardarEnArchivo("obras.txt");
+        controlEdiciones.guardarEnArchivo("ediciones.txt");
         // Agregar guardado de ediciones si tienes ControlEdiciones
         
         std::cout << "Datos guardados exitosamente." << std::endl;
