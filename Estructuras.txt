@@ -1,0 +1,558 @@
+/*
+Archivo: ArbolAVL.h
+*/
+#ifndef ARBOLAVL_H
+#define ARBOLAVL_H
+
+#include <iostream>
+
+
+template <typename T>
+class ArbolAVL {
+   
+private:
+    struct NodoAVL {
+    T dato;
+    NodoAVL* izquierdo;
+    NodoAVL* derecho;
+    int altura;
+    NodoAVL(const T& valor) : dato(valor), izquierdo(nullptr), derecho(nullptr), altura(1) {}
+    };
+    
+    NodoAVL<T>* raiz;
+
+    int altura(NodoAVL<T>* nodo) {
+        return nodo ? nodo->altura : 0;
+    }
+
+    int balance(NodoAVL<T>* nodo) {
+        return nodo ? altura(nodo->izquierdo) - altura(nodo->derecho) : 0;
+    }
+
+    NodoAVL<T>* rotacionDerecha(NodoAVL<T>* y) {
+        NodoAVL<T>* x = y->izquierdo;
+        NodoAVL<T>* T2 = x->derecho;
+
+        x->derecho = y;
+        y->izquierdo = T2;
+
+        y->altura = 1 + std::max(altura(y->izquierdo), altura(y->derecho));
+        x->altura = 1 + std::max(altura(x->izquierdo), altura(x->derecho));
+
+        return x;
+    }
+
+    NodoAVL<T>* rotacionIzquierda(NodoAVL<T>* x) {
+        NodoAVL<T>* y = x->derecho;
+        NodoAVL<T>* T2 = y->izquierdo;
+
+        y->izquierdo = x;
+        x->derecho = T2;
+
+        x->altura = 1 + std::max(altura(x->izquierdo), altura(x->derecho));
+        y->altura = 1 + std::max(altura(y->izquierdo), altura(y->derecho));
+
+        return y;
+    }
+
+    NodoAVL<T>* insertar(NodoAVL<T>* nodo, const T& dato) {
+        if (!nodo) return new NodoAVL<T>(dato);
+
+        if (dato < nodo->dato)
+            nodo->izquierdo = insertar(nodo->izquierdo, dato);
+        else if (dato > nodo->dato)
+            nodo->derecho = insertar(nodo->derecho, dato);
+        else
+            return nodo; // Dato duplicado, no se inserta
+
+        nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
+
+        int balanceo = balance(nodo);
+
+        if (balanceo > 1 && dato < nodo->izquierdo->dato)
+            return rotacionDerecha(nodo);
+
+        if (balanceo < -1 && dato > nodo->derecho->dato)
+            return rotacionIzquierda(nodo);
+
+        if (balanceo > 1 && dato > nodo->izquierdo->dato) {
+            nodo->izquierdo = rotacionIzquierda(nodo->izquierdo);
+            return rotacionDerecha(nodo);
+        }
+
+        if (balanceo < -1 && dato < nodo->derecho->dato) {
+            nodo->derecho = rotacionDerecha(nodo->derecho);
+            return rotacionIzquierda(nodo);
+        }
+
+        return nodo;
+    }
+
+    NodoAVL<T>* encontrarMinimo(NodoAVL<T>* nodo) {
+        while (nodo->izquierdo != nullptr)
+            nodo = nodo->izquierdo;
+        return nodo;
+    }
+
+    NodoAVL<T>* eliminar(NodoAVL<T>* nodo, const T& dato) {
+        if (!nodo) return nodo;
+
+        if (dato < nodo->dato)
+            nodo->izquierdo = eliminar(nodo->izquierdo, dato);
+        else if (dato > nodo->dato)
+            nodo->derecho = eliminar(nodo->derecho, dato);
+        else {
+            if (!nodo->izquierdo || !nodo->derecho) {
+                NodoAVL<T>* temp = nodo->izquierdo ? nodo->izquierdo : nodo->derecho;
+                
+                if (!temp) {
+                    temp = nodo;
+                    nodo = nullptr;
+                } else {
+                    *nodo = *temp;
+                }
+                delete temp;
+            } else {
+                NodoAVL<T>* temp = encontrarMinimo(nodo->derecho);
+                
+                nodo->dato = temp->dato;
+                
+                nodo->derecho = eliminar(nodo->derecho, temp->dato);
+            }
+        }
+
+        if (!nodo) return nodo;
+
+        nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
+
+        int balanceo = balance(nodo);
+
+        if (balanceo > 1 && balance(nodo->izquierdo) >= 0)
+            return rotacionDerecha(nodo);
+
+        if (balanceo > 1 && balance(nodo->izquierdo) < 0) {
+            nodo->izquierdo = rotacionIzquierda(nodo->izquierdo);
+            return rotacionDerecha(nodo);
+        }
+
+        if (balanceo < -1 && balance(nodo->derecho) <= 0)
+            return rotacionIzquierda(nodo);
+
+        if (balanceo < -1 && balance(nodo->derecho) > 0) {
+            nodo->derecho = rotacionDerecha(nodo->derecho);
+            return rotacionIzquierda(nodo);
+        }
+
+        return nodo;
+    }
+
+    void inOrden(NodoAVL<T>* nodo) const {
+        if (nodo) {
+            inOrden(nodo->izquierdo);
+            std::cout << nodo->dato << " ";
+            inOrden(nodo->derecho);
+        }
+    }
+
+    NodoAVL<T>* buscar(NodoAVL<T>* nodo, const T& clave) const {
+        if (!nodo || nodo->dato == clave) return nodo;
+
+        if (clave < nodo->dato)
+            return buscar(nodo->izquierdo, clave);
+        else
+            return buscar(nodo->derecho, clave);
+    }
+
+    void liberar(NodoAVL<T>* nodo) {
+        if (!nodo) return;
+        liberar(nodo->izquierdo);
+        liberar(nodo->derecho);
+        delete nodo;
+    }
+
+public:
+    ArbolAVL() : raiz(nullptr) {}
+
+    ~ArbolAVL() {
+        liberar(raiz);
+    }
+
+    void insertar(const T& dato) {
+        raiz = insertar(raiz, dato);
+    }
+
+    void eliminar(const T& dato) {
+        raiz = eliminar(raiz, dato);
+    }
+
+    bool buscar(const T& clave) const {
+        return buscar(raiz, clave) != nullptr;
+    }
+
+    void mostrarInOrden() const {
+        inOrden(raiz);
+    }
+
+    bool estaVacio() const {
+        return raiz == nullptr;
+    }
+};
+
+#endif // ARBOLAVL_H
+/*
+Archivo: Lista.h
+*/
+
+#ifndef LISTA_H
+#define LISTA_H
+
+#include "Nodo.h"
+#include <iostream>
+
+template <class T>
+class Lista {
+private:
+    Nodo<T>* cabeza;
+    Nodo<T>* cola;
+    int tamano;
+
+public:
+    Lista() : cabeza(nullptr), cola(nullptr), tamano(0) {}
+
+    ~Lista() {
+        while (cabeza != nullptr) {
+            Nodo<T>* temp = cabeza;
+            cabeza = cabeza->siguiente;
+            delete temp;
+        }
+        cola = nullptr;
+        tamano = 0;
+    }
+
+    int getTamano() const { return tamano; }
+    bool estaVacia() const { return cabeza == nullptr; }
+
+    void insertarInicio(T info) {
+        Nodo<T>* nuevoNodo = new Nodo<T>(info);
+        if (estaVacia()) {
+            cabeza = cola = nuevoNodo;
+        } else {
+            nuevoNodo->siguiente = cabeza;
+            cabeza = nuevoNodo;
+        }
+        tamano++;
+    }
+
+    void insertarFinal(T info) {
+        Nodo<T>* nuevoNodo = new Nodo<T>(info);
+        if (estaVacia()) {
+            cabeza = cola = nuevoNodo;
+        } else {
+            cola->siguiente = nuevoNodo;
+            cola = nuevoNodo;
+        }
+        tamano++;
+    }
+
+    void eliminar(T info) {
+        if (estaVacia()) return;
+
+        if (cabeza->dato == info) {
+            Nodo<T>* temp = cabeza;
+            cabeza = cabeza->siguiente;
+            if (cabeza == nullptr) cola = nullptr;
+            delete temp;
+            tamano--;
+            return;
+        }
+
+        Nodo<T>* actual = cabeza;
+        while (actual->siguiente != nullptr && actual->siguiente->dato != info) {
+            actual = actual->siguiente;
+        }
+
+        if (actual->siguiente != nullptr) {
+            Nodo<T>* nodoEliminar = actual->siguiente;
+            actual->siguiente = nodoEliminar->siguiente;
+            if (nodoEliminar == cola) cola = actual;
+            delete nodoEliminar;
+            tamano--;
+        }
+    }
+
+    T* buscar(T info) const {
+        Nodo<T>* actual = cabeza;
+        while (actual != nullptr) {
+            if (actual->dato == info) return &actual->dato;
+            actual = actual->siguiente;
+        }
+        return nullptr;
+    }
+
+    void mostrar() const {
+        if (estaVacia()) {
+            std::cout << "Lista vacía" << std::endl;
+            return;
+        }
+
+        Nodo<T>* actual = cabeza;
+        std::cout << "Lista: ";
+        while (actual != nullptr) {
+            std::cout << actual->dato;
+            if (actual->siguiente != nullptr) std::cout << " -> ";
+            actual = actual->siguiente;
+        }
+        std::cout << std::endl;
+    }
+};
+
+#endif // LISTA_H
+/*
+Archivo: multilista.h
+*/
+
+#ifndef MULTILISTA_H
+#define MULTILISTA_H
+
+#include "Lista.h"
+#include <iostream>
+
+template <class T>
+class Multilista {
+private:
+
+    struct NodoMultilista {
+        T dato; // Dato del nodo
+        NodoMultilista* siguiente; // Puntero al siguiente nodo en la multilista
+        NodoMultilista* anterior; // Puntero al nodo anterior en la multilista
+        Lista<T>* sublista; // Sublista asociada al nodo
+
+        NodoMultilista(T valor) : dato(valor), siguiente(nullptr), anterior(nullptr), sublista(new Lista<T>()) {}
+
+        ~NodoMultilista() {
+            delete sublista; // Liberar memoria de la sublista
+        }
+    };
+
+    NodoMultilista<T>* cabeza;
+    NodoMultilista<T>* cola;
+    int tamano;
+
+public:
+    Multilista() : cabeza(nullptr), cola(nullptr), tamano(0) {}
+
+    ~Multilista() {
+        while (cabeza != nullptr) {
+            NodoMultilista<T>* temp = cabeza;
+            cabeza = cabeza->siguiente;
+            delete temp;
+        }
+        cola = nullptr;
+        tamano = 0;
+    }
+
+    int getTamano() const { 
+        return tamano; 
+    }
+
+    bool estaVacia() const { 
+        return cabeza == nullptr; 
+    }
+
+    void insertarInicio(T dato) {
+        NodoMultilista<T>* nuevoNodo = new NodoMultilista<T>(dato);
+        
+        if (estaVacia()) {
+            cabeza = cola = nuevoNodo;
+        } else {
+            nuevoNodo->siguiente = cabeza;
+            cabeza->anterior = nuevoNodo;
+            cabeza = nuevoNodo;
+        }
+        tamano++;
+    }
+
+    void insertarFinal(T dato) {
+        NodoMultilista<T>* nuevoNodo = new NodoMultilista<T>(dato);
+        
+        if (estaVacia()) {
+            cabeza = cola = nuevoNodo;
+        } else {
+            cola->siguiente = nuevoNodo;
+            nuevoNodo->anterior = cola;
+            cola = nuevoNodo;
+        }
+        tamano++;
+    }
+
+    bool insertarEnSublista(T datoNodo, T datoSublista) {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            nodo->sublista->insertarFinal(datoSublista);
+            return true;
+        }
+        return false;
+    }
+
+    bool insertarEnSublistaInicio(T datoNodo, T datoSublista) {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            nodo->sublista->insertarInicio(datoSublista);
+            return true;
+        }
+        return false;
+    }
+
+    bool eliminar(T dato) {
+        if (estaVacia()) return false;
+
+        NodoMultilista<T>* actual = cabeza;
+        
+        while (actual != nullptr) {
+            if (actual->dato == dato) {
+                // Actualizar enlaces
+                if (actual->anterior != nullptr) {
+                    actual->anterior->siguiente = actual->siguiente;
+                } else {
+                    cabeza = actual->siguiente;
+                }
+                
+                if (actual->siguiente != nullptr) {
+                    actual->siguiente->anterior = actual->anterior;
+                } else {
+                    cola = actual->anterior;
+                }
+                
+                delete actual;
+                tamano--;
+                return true;
+            }
+            actual = actual->siguiente;
+        }
+        return false;
+    }
+
+    bool eliminarDeSublista(T datoNodo, T datoSublista) {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            nodo->sublista->eliminar(datoSublista);
+            return true;
+        }
+        return false;
+    }
+
+    NodoMultilista<T>* buscarNodo(T dato) const {
+        NodoMultilista<T>* actual = cabeza;
+        while (actual != nullptr) {
+            if (actual->dato == dato) {
+                return actual;
+            }
+            actual = actual->siguiente;
+        }
+        return nullptr;
+    }
+
+    T* buscar(T dato) const {
+        NodoMultilista<T>* nodo = buscarNodo(dato);
+        return (nodo != nullptr) ? &nodo->dato : nullptr;
+    }
+
+    bool buscarEnSublista(T datoNodo, T datoSublista) const {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            return nodo->sublista->buscar(datoSublista) != nullptr;
+        }
+        return false;
+    }
+
+    void mostrar() const {
+        if (estaVacia()) {
+            std::cout << "Multilista vacía" << std::endl;
+            return;
+        }
+
+        NodoMultilista<T>* actual = cabeza;
+        std::cout << "=== MULTILISTA ===" << std::endl;
+        
+        while (actual != nullptr) {
+            std::cout << "Nodo principal: " << actual->dato << std::endl;
+            std::cout << "  Sublista -> ";
+            
+            if (actual->sublista->estaVacia()) {
+                std::cout << "vacía" << std::endl;
+            } else {
+                actual->sublista->mostrar();
+            }
+            
+            std::cout << std::endl;
+            actual = actual->siguiente;
+        }
+        std::cout << "=================" << std::endl;
+    }
+
+    void mostrarSublista(T datoNodo) const {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        if (nodo != nullptr) {
+            std::cout << "Sublista del nodo " << datoNodo << ": ";
+            nodo->sublista->mostrar();
+        } else {
+            std::cout << "Nodo " << datoNodo << " no encontrado" << std::endl;
+        }
+    }
+
+    void mostrarPrincipal() const {
+        if (estaVacia()) {
+            std::cout << "Multilista vacía" << std::endl;
+            return;
+        }
+
+        NodoMultilista<T>* actual = cabeza;
+        std::cout << "Multilista principal: ";
+        
+        while (actual != nullptr) {
+            std::cout << actual->dato;
+            if (actual->siguiente != nullptr) {
+                std::cout << " <-> ";
+            }
+            actual = actual->siguiente;
+        }
+        std::cout << std::endl;
+    }
+
+    int getTamanoSublista(T datoNodo) const {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        return (nodo != nullptr) ? nodo->sublista->getTamano() : -1;
+    }
+
+    bool sublistaEstaVacia(T datoNodo) const {
+        NodoMultilista<T>* nodo = buscarNodo(datoNodo);
+        return (nodo != nullptr) ? nodo->sublista->estaVacia() : true;
+    }
+};
+
+#endif // MULTILISTA_H
+/* 
+Archivo "Nodo.h"
+*/
+#ifndef NODO_H
+#define NODO_H
+
+template <class T>
+struct Nodo {
+    T dato;
+    Nodo* siguiente;
+    Nodo* anterior;
+
+    Nodo(T valor) {
+        dato = valor;
+        siguiente = nullptr;
+        anterior = nullptr;
+    }
+
+    ~Nodo() {
+        siguiente = nullptr;
+        anterior = nullptr;
+    }
+};
+
+#endif // NODO_H
