@@ -19,7 +19,7 @@ struct Nodo {
     - anterior: Puntero al nodo anterior en la estructura enlazada.
 
     Métodos:
-    - Constructor: Inicializa el nodo con un valor y establece los punteros a nullptr.
+    - Constructor: Inicializa el nodo con un valor y establece los punteros a NULL.
     - Destructor: Limpia los punteros al destruir el nodo.
     */
 
@@ -30,14 +30,14 @@ struct Nodo {
     // Constructor
     Nodo(T valor) {
         dato = valor;
-        siguiente = nullptr;
-        anterior = nullptr;
+        siguiente = NULL;
+        anterior = NULL;
     }
 
     // Destructor
     ~Nodo() {
-        siguiente = nullptr;
-        anterior = nullptr;
+        siguiente = NULL;
+        anterior = NULL;
     }
 };
 

@@ -1,0 +1,3 @@
+ID001;Gabriel;Garcia Marquez;M;1927-03-06;Aracataca;Colombia;Mexico DF;literatura;1947;1955
+ID002;Piedad;Bonnett;F;1951-01-01;Amalfi;Colombia;Bogota;artes;1975;1981
+ID003;Mario;Benedetti;M;1920-09-14;Paso de los Toros;Uruguay;Montevideo;ciencias sociales;1945;1950

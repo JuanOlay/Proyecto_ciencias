@@ -38,16 +38,16 @@ private:
 
 public:
     // Constructor
-    Lista() : cabeza(nullptr), cola(nullptr), tamano(0) {}
+    Lista() : cabeza(NULL), cola(NULL), tamano(0) {}
 
     // Destructor
     ~Lista() {
-        while (cabeza != nullptr) {
+        while (cabeza != NULL) {
             Nodo<T>* temp = cabeza;
             cabeza = cabeza->siguiente;
             delete temp;
         }
-        cola = nullptr;
+        cola = NULL;
         tamano = 0;
     }
 
@@ -68,7 +68,7 @@ public:
         Parámetros: Ninguno
         Retorno: true si la lista está vacía, o false si no lo está.
         */
-        return cabeza == nullptr;
+        return cabeza == NULL;
     }
 
     void insertarInicio(T info) {
@@ -106,54 +106,67 @@ public:
     }
 
     void eliminar(T info) {
-        /*
-        Método para eliminar un nodo con un valor específico de la lista.
-        Parámetros:
-        - info: El valor del nodo a eliminar de la lista.
-        Retorno: Ninguno
-        */
-        if (estaVacia()) return;
+	    /*
+	    M�todo para eliminar un nodo con un valor espec�fico de la lista.
+	    Par�metros:
+	    - info: El valor del nodo a eliminar de la lista.
+	    Retorno: Ninguno
+	    */
+	    if (estaVacia()) return;
+	
+	    if (cabeza->dato == info) {
+	        Nodo<T>* temp = cabeza;
+	        cabeza = cabeza->siguiente;
+	        if (cabeza == NULL) cola = NULL;
+	        delete temp;
+	        tamano--;
+	        return;
+	    }
+	
+	    Nodo<T>* actual = cabeza;
+	    while (actual->siguiente != NULL && !(actual->siguiente->dato == info)) {
+	        actual = actual->siguiente;
+	    }
+	
+	    if (actual->siguiente != NULL) {
+	        Nodo<T>* nodoEliminar = actual->siguiente;
+	        actual->siguiente = nodoEliminar->siguiente;
+	        if (nodoEliminar == cola) cola = actual;
+	        delete nodoEliminar;
+	        tamano--;
+	    }
+	}
 
-        if (cabeza->dato == info) {
-            Nodo<T>* temp = cabeza;
-            cabeza = cabeza->siguiente;
-            if (cabeza == nullptr) cola = nullptr;
-            delete temp;
-            tamano--;
-            return;
-        }
-
-        Nodo<T>* actual = cabeza;
-        while (actual->siguiente != nullptr && actual->siguiente->dato != info) {
-            actual = actual->siguiente;
-        }
-
-        if (actual->siguiente != nullptr) {
-            Nodo<T>* nodoEliminar = actual->siguiente;
-            actual->siguiente = nodoEliminar->siguiente;
-            if (nodoEliminar == cola) cola = actual;
-            delete nodoEliminar;
-            tamano--;
-        }
-    }
 
     T* buscar(T info) const {
         /*
         Método que busca un nodo en la lista por su dato.
-        Retorna un puntero al dato si se encuentra, o nullptr si no se encuentra.
+        Retorna un puntero al dato si se encuentra, o NULL si no se encuentra.
         Parámetros:
         - info: El valor a buscar en la lista.
         Retorno:
-        - Un puntero al dato si se encuentra, o nullptr si no se encuentra.
-        Si la lista está vacía, retorna nullptr.
+        - Un puntero al dato si se encuentra, o NULL si no se encuentra.
+        Si la lista está vacía, retorna NULL.
         */
         Nodo<T>* actual = cabeza;
-        while (actual != nullptr) {
+        while (actual != NULL) {
             if (actual->dato == info) return &actual->dato;
             actual = actual->siguiente;
         }
-        return nullptr;
+        return NULL;
     }
+    
+    T* buscarEnPos(int pos) const {
+	    if (pos < 0 || pos >= tamano) return NULL;
+	    Nodo<T>* actual = cabeza;
+	    int i = 0;
+	    while (actual != NULL && i < pos) {
+	        actual = actual->siguiente;
+	        i++;
+	    }
+	    return (actual != NULL) ? &actual->dato : NULL;
+	}
+
 
     void mostrar() const {
         /*
@@ -169,13 +182,24 @@ public:
 
         Nodo<T>* actual = cabeza;
         std::cout << "Lista: ";
-        while (actual != nullptr) {
+        while (actual != NULL) {
             std::cout << actual->dato;
-            if (actual->siguiente != nullptr) std::cout << " -> ";
+            if (actual->siguiente != NULL) std::cout << " -> ";
             actual = actual->siguiente;
         }
         std::cout << std::endl;
     }
+    T& operator[](int indice) {
+    Nodo<T>* actual = cabeza;
+    int i = 0;
+    while (actual && i < indice) {
+        actual = actual->siguiente;
+        i++;
+    }
+    if (!actual) throw std::out_of_range("Índice fuera de rango");
+    return actual->dato;
+}
+
 };
 
 #endif // LISTA_H

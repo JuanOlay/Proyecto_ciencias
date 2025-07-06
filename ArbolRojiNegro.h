@@ -11,9 +11,9 @@ struct nodo {
     T info;
     int clave;
     bool color = 1; // Rojo = 1, Negro = 0
-    nodo* padre = nullptr;
-    nodo* hijoDer = nullptr;
-    nodo* hijoIzq = nullptr;
+    nodo* padre = NULL;
+    nodo* hijoDer = NULL;
+    nodo* hijoIzq = NULL;
 };
 
 template <class T>
@@ -41,7 +41,7 @@ public:
 template <class T>
 ArbolRojiNegro<T>::ArbolRojiNegro(){
     cab = new nodo<T>;
-    cab -> hijoDer = nullptr;
+    cab -> hijoDer = NULL;
     numElem = 0;
 }
 
@@ -51,7 +51,7 @@ ArbolRojiNegro<T>::~ArbolRojiNegro() {
 
 template <class T>
 bool ArbolRojiNegro<T>::arbolVacio() {
-    return cab -> hijoDer == nullptr;
+    return cab -> hijoDer == NULL;
 }
 
 template <class T>
@@ -59,13 +59,13 @@ void ArbolRojiNegro<T>::rotarIzquierda(nodo<T>* nodoDescendente) {
     nodo<T>* nodoAscendente = nodoDescendente->hijoDer;
     nodoDescendente->hijoDer = nodoAscendente->hijoIzq;
 
-    if (nodoAscendente->hijoIzq != nullptr) {
+    if (nodoAscendente->hijoIzq != NULL) {
         nodoAscendente->hijoIzq->padre = nodoDescendente;
     }
 
     nodoAscendente->padre = nodoDescendente->padre;
 
-    if (nodoDescendente->padre == nullptr) {
+    if (nodoDescendente->padre == NULL) {
         cab = nodoAscendente;
     } else if (nodoDescendente == nodoDescendente->padre->hijoIzq) {
         nodoDescendente->padre->hijoIzq = nodoAscendente;
@@ -82,13 +82,13 @@ void ArbolRojiNegro<T>::rotarDerecha(nodo<T>* nodoDescendente) {
     nodo<T>* nodoAscendente = nodoDescendente->hijoIzq;
     nodoDescendente->hijoIzq = nodoAscendente->hijoDer;
 
-    if (nodoAscendente->hijoDer != nullptr) {
+    if (nodoAscendente->hijoDer != NULL) {
         nodoAscendente->hijoDer->padre = nodoDescendente;
     }
 
     nodoAscendente->padre = nodoDescendente->padre;
 
-    if (nodoDescendente->padre == nullptr) {
+    if (nodoDescendente->padre == NULL) {
         cab = nodoAscendente;
     } else if (nodoDescendente == nodoDescendente->padre->hijoDer) {
         nodoDescendente->padre->hijoDer = nodoAscendente;
@@ -108,14 +108,14 @@ std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
     nodo<T>* temp = cab->hijoDer;
     nodo<T>* padreTemp = cab;
 
-    if (temp == nullptr) {
+    if (temp == NULL) {
         cab->hijoDer = nodoNuevo;
         nodoNuevo->padre = cab;
         nodoNuevo->color = 0; 
         return "Hecho";
     }
 
-    while (temp != nullptr) {
+    while (temp != NULL) {
         padreTemp = temp;
         if (clave < temp->clave) {
             temp = temp->hijoIzq;
@@ -140,7 +140,7 @@ std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
         if (padre == abuelo->hijoIzq) {
             nodo<T>* tio = abuelo->hijoDer;
 
-            if (tio != nullptr && tio->color == 1) {
+            if (tio != NULL && tio->color == 1) {
                 padre->color = 0;
                 tio->color = 0;
                 abuelo->color = 1;
@@ -160,7 +160,7 @@ std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
         } else {
             nodo<T>* tio = abuelo->hijoIzq;
 
-            if (tio != nullptr && tio->color == 1) {
+            if (tio != NULL && tio->color == 1) {
                 padre->color = 0;
                 tio->color = 0;
                 abuelo->color = 1;
@@ -185,7 +185,7 @@ std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
 template <class T>
 nodo<T>* ArbolRojiNegro<T>::buscar(int clave) {
     nodo<T>* actual = cab -> hijoDer;
-    while (actual != nullptr && actual->clave != clave) {
+    while (actual != NULL && actual->clave != clave) {
         if (clave < actual->clave)
             actual = actual->hijoIzq;
         else
@@ -197,27 +197,27 @@ nodo<T>* ArbolRojiNegro<T>::buscar(int clave) {
 template <class T>
 std::string ArbolRojiNegro<T>::eliminar(int clave) {
     nodo<T>* nodoABorrar = buscar(clave);
-    if (nodoABorrar == nullptr) return "No se puede hacer la eliminacion dado que este nodo no se encuentra en el arbol";
+    if (nodoABorrar == NULL) return "No se puede hacer la eliminacion dado que este nodo no se encuentra en el arbol";
 
     nodo<T>* y = nodoABorrar;
-    nodo<T>* x = nullptr;
+    nodo<T>* x = NULL;
     int yColorOriginal = y->color;
 
 
-    if (nodoABorrar->hijoIzq != nullptr && nodoABorrar->hijoDer != nullptr) {
+    if (nodoABorrar->hijoIzq != NULL && nodoABorrar->hijoDer != NULL) {
         y = nodoABorrar->hijoDer;
-        while (y->hijoIzq != nullptr)
+        while (y->hijoIzq != NULL)
             y = y->hijoIzq;
 
         yColorOriginal = y->color;
 
-        x = (y->hijoDer != nullptr) ? y->hijoDer : y->hijoIzq;
+        x = (y->hijoDer != NULL) ? y->hijoDer : y->hijoIzq;
 
         if (y->padre == nodoABorrar) {
-            if (x != nullptr)
+            if (x != NULL)
                 x->padre = y;
         } else {
-            if (x != nullptr)
+            if (x != NULL)
                 x->padre = y->padre;
             if (y->padre->hijoIzq == y)
                 y->padre->hijoIzq = x;
@@ -225,11 +225,11 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
                 y->padre->hijoDer = x;
 
             y->hijoDer = nodoABorrar->hijoDer;
-            if (y->hijoDer != nullptr)
+            if (y->hijoDer != NULL)
                 y->hijoDer->padre = y;
         }
 
-        if (nodoABorrar->padre == nullptr)
+        if (nodoABorrar->padre == NULL)
             cab->hijoDer = y;
         else if (nodoABorrar->padre->hijoIzq == nodoABorrar)
             nodoABorrar->padre->hijoIzq = y;
@@ -238,16 +238,16 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 
         y->padre = nodoABorrar->padre;
         y->hijoIzq = nodoABorrar->hijoIzq;
-        if (y->hijoIzq != nullptr)
+        if (y->hijoIzq != NULL)
             y->hijoIzq->padre = y;
         y->color = nodoABorrar->color;
     } else {
-        x = (nodoABorrar->hijoIzq != nullptr) ? nodoABorrar->hijoIzq : nodoABorrar->hijoDer;
+        x = (nodoABorrar->hijoIzq != NULL) ? nodoABorrar->hijoIzq : nodoABorrar->hijoDer;
 
-        if (x != nullptr)
+        if (x != NULL)
             x->padre = nodoABorrar->padre;
 
-        if (nodoABorrar->padre == nullptr)
+        if (nodoABorrar->padre == NULL)
             cab->hijoDer = x;
         else if (nodoABorrar->padre->hijoIzq == nodoABorrar)
             nodoABorrar->padre->hijoIzq = x;
@@ -257,7 +257,7 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 
     delete nodoABorrar;
 
-    if (yColorOriginal == 0 && x != nullptr) {
+    if (yColorOriginal == 0 && x != NULL) {
         nodo<T>* hermano;
 
         while (x != cab->hijoDer && x->color == 0) {
@@ -270,13 +270,13 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
                     hermano = x->padre->hijoDer;
                 }
 
-                if ((hermano->hijoIzq == nullptr || hermano->hijoIzq->color == 0) &&
-                    (hermano->hijoDer == nullptr || hermano->hijoDer->color == 0)) {
+                if ((hermano->hijoIzq == NULL || hermano->hijoIzq->color == 0) &&
+                    (hermano->hijoDer == NULL || hermano->hijoDer->color == 0)) {
                     hermano->color = 1;
                     x = x->padre;
                 } else {
-                    if (hermano->hijoDer == nullptr || hermano->hijoDer->color == 0) {
-                        if (hermano->hijoIzq != nullptr)
+                    if (hermano->hijoDer == NULL || hermano->hijoDer->color == 0) {
+                        if (hermano->hijoIzq != NULL)
                             hermano->hijoIzq->color = 0;
                         hermano->color = 1;
                         rotarDerecha(hermano);
@@ -285,7 +285,7 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 
                     hermano->color = x->padre->color;
                     x->padre->color = 0;
-                    if (hermano->hijoDer != nullptr)
+                    if (hermano->hijoDer != NULL)
                         hermano->hijoDer->color = 0;
                     rotarIzquierda(x->padre);
                     x = cab->hijoDer;
@@ -299,13 +299,13 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
                     hermano = x->padre->hijoIzq;
                 }
 
-                if ((hermano->hijoDer == nullptr || hermano->hijoDer->color == 0) &&
-                    (hermano->hijoIzq == nullptr || hermano->hijoIzq->color == 0)) {
+                if ((hermano->hijoDer == NULL || hermano->hijoDer->color == 0) &&
+                    (hermano->hijoIzq == NULL || hermano->hijoIzq->color == 0)) {
                     hermano->color = 1;
                     x = x->padre;
                 } else {
-                    if (hermano->hijoIzq == nullptr || hermano->hijoIzq->color == 0) {
-                        if (hermano->hijoDer != nullptr)
+                    if (hermano->hijoIzq == NULL || hermano->hijoIzq->color == 0) {
+                        if (hermano->hijoDer != NULL)
                             hermano->hijoDer->color = 0;
                         hermano->color = 1;
                         rotarIzquierda(hermano);
@@ -314,7 +314,7 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 
                     hermano->color = x->padre->color;
                     x->padre->color = 0;
-                    if (hermano->hijoIzq != nullptr)
+                    if (hermano->hijoIzq != NULL)
                         hermano->hijoIzq->color = 0;
                     rotarDerecha(x->padre);
                     x = cab->hijoDer;
@@ -322,7 +322,7 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
             }
         }
 
-        if (x != nullptr)
+        if (x != NULL)
             x->color = 0;
     }
 
@@ -332,13 +332,13 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 template <class T>
 void ArbolRojiNegro<T>::modificar(int clave, const T& nuevaInfo) {
     nodo<T>* n = buscar(clave);
-    if (n != nullptr)
+    if (n != NULL)
         n->info = nuevaInfo;
 }
 
 template <class T>
 void destruir(nodo<T>* r) {
-    if (r == nullptr) return;
+    if (r == NULL) return;
     destruir(r->hijoIzq);
     destruir(r->hijoDer);
     delete r;
@@ -350,8 +350,8 @@ std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() {
     std::stack<nodo<T>*> pila;
     nodo<T>* actual = cab->hijoDer;
 
-    while (actual != nullptr || !pila.empty()) {
-        while (actual != nullptr) {
+    while (actual != NULL || !pila.empty()) {
+        while (actual != NULL) {
             pila.push(actual);
             actual = actual->hijoIzq;
         }
@@ -367,7 +367,7 @@ std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() {
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPreOrden() {
     std::queue<T> resultado;
-    if (cab->hijoDer == nullptr) return resultado;
+    if (cab->hijoDer == NULL) return resultado;
 
     std::stack<nodo<T>*> pila;
     pila.push(cab->hijoDer);
@@ -377,8 +377,8 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPreOrden() {
         pila.pop();
         resultado.push(actual->info);
 
-        if (actual->hijoDer != nullptr) pila.push(actual->hijoDer);
-        if (actual->hijoIzq != nullptr) pila.push(actual->hijoIzq);
+        if (actual->hijoDer != NULL) pila.push(actual->hijoDer);
+        if (actual->hijoIzq != NULL) pila.push(actual->hijoIzq);
     }
 
     return resultado;
@@ -387,7 +387,7 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPreOrden() {
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPosOrden() {
     std::queue<T> resultado;
-    if (cab->hijoDer == nullptr) return resultado;
+    if (cab->hijoDer == NULL) return resultado;
 
     std::stack<nodo<T>*> s1, s2;
     s1.push(cab->hijoDer);
@@ -397,8 +397,8 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPosOrden() {
         s1.pop();
         s2.push(actual);
 
-        if (actual->hijoIzq != nullptr) s1.push(actual->hijoIzq);
-        if (actual->hijoDer != nullptr) s1.push(actual->hijoDer);
+        if (actual->hijoIzq != NULL) s1.push(actual->hijoIzq);
+        if (actual->hijoDer != NULL) s1.push(actual->hijoDer);
     }
 
     while (!s2.empty()) {
@@ -412,7 +412,7 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPosOrden() {
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPorNiveles() {
     std::queue<T> resultado;
-    if (cab->hijoDer == nullptr) return resultado;
+    if (cab->hijoDer == NULL) return resultado;
 
     std::queue<nodo<T>*> q;
     q.push(cab->hijoDer);
@@ -422,8 +422,8 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPorNiveles() {
         q.pop();
         resultado.push(actual->info);
 
-        if (actual->hijoIzq != nullptr) q.push(actual->hijoIzq);
-        if (actual->hijoDer != nullptr) q.push(actual->hijoDer);
+        if (actual->hijoIzq != NULL) q.push(actual->hijoIzq);
+        if (actual->hijoDer != NULL) q.push(actual->hijoDer);
     }
 
     return resultado;

@@ -1,0 +1,3 @@
+Cien anios de soledad;verso libre;ID001;1,2,3
+Lo que no tiene nombre;soneto;ID002;2
+La tregua;romance;ID003;3
