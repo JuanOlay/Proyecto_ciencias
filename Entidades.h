@@ -1,6 +1,7 @@
 #ifndef ENTIDADES_H
 #define ENTIDADES_H
 
+#include <iostream>
 #include <string>
 #include "Lista.h"
 
@@ -51,11 +52,17 @@ struct Obra {
     string tipoPoesia;
     string idAutor;
     Lista<int> ediciones;
-
     bool operator==(const Obra& otra) const {
-        return nombre == otra.nombre;
-    }
+    return nombre == otra.nombre;
+}
+
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Obra& o) {
+    os << "Nombre: " << o.nombre 
+       << ", Tipo de poesía: " << o.tipoPoesia 
+       << ", ID Autor: " << o.idAutor;
+    return os;
+}
 #endif
 

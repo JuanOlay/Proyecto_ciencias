@@ -1,3 +1,0 @@
-ED001;Editorial Sudamericana;Buenos Aires;Argentina
-ED002;Penguin Random House;Bogota;Colombia
-ED003;Planeta;Ciudad de Mexico;Mexico
