@@ -37,10 +37,12 @@ struct Editorial {
 };
 
 struct Edicion {
+
     int numeroEdicion;
     string fechaPublicacion;
     string idEditorial;
     string ciudadPublicacion;
+    string idObra;
 
     bool operator==(const Edicion& otra) const {
         return numeroEdicion == otra.numeroEdicion;

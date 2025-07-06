@@ -1,3 +1,1 @@
-1;2000-05-12;ED001;Buenos Aires
-2;2003-10-21;ED002;Bogota
-3;2005-07-30;ED003;Ciudad de Mexico
+

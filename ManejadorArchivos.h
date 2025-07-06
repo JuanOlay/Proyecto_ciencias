@@ -85,7 +85,7 @@ public:
 	    while (getline(archivo, linea)) {
 	        numLinea++;
 	
-	        if (linea.empty()) continue;  // ? Línea vacía
+	        if (linea.empty()) continue;  // ? Lï¿½nea vacï¿½a
 	
 	        std::stringstream ssContador(linea);
 	        std::string tempCampo;
@@ -95,8 +95,8 @@ public:
 	        }
 	
 	        if (contadorCampos != 11) {
-	            std::cout << "Línea " << numLinea << " ignorada (campos inválidos): " << linea << "\n";
-	            continue;  // ? Línea mal formateada
+	            std::cout << "Lï¿½nea " << numLinea << " ignorada (campos invï¿½lidos): " << linea << "\n";
+	            continue;  // ? Lï¿½nea mal formateada
 	        }
 	
 	        Autor a;
@@ -116,13 +116,13 @@ public:
 	        getline(ss, campo);      a.anioPrimeraObra = std::atoi(campo.c_str());
 	
 	        if (a.id.empty()) {
-	            std::cout << "Línea " << numLinea << " ignorada (ID vacío): " << linea << "\n";
+	            std::cout << "Lï¿½nea " << numLinea << " ignorada (ID vacï¿½o): " << linea << "\n";
 	            continue;
 	        }
 	
 	        listaAutores.insertarFinal(a);
 	
-	        // Índice para consulta 6
+	        // ï¿½ndice para consulta 6
 	        int edad = calcularEdad(a.fechaNacimiento);
 	        std::string valorFormacion = construirClaveEdadAnio(edad, a.anioPrimeraObra, a.id);
 	        formacionAutores.insertarEnSublista(a.formacionBase, valorFormacion);
@@ -176,6 +176,7 @@ public:
             getline(ss, e.fechaPublicacion, ';');
             getline(ss, e.idEditorial, ';');
             getline(ss, e.ciudadPublicacion);
+            getline(ss, e.idObra);
 
             arbolEdiciones.insertar(e.numeroEdicion, e);
             

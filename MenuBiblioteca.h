@@ -80,6 +80,7 @@ private:
         std::cout << "Fecha de publicacion (DD/MM/YYYY): "; getline(std::cin, e.fechaPublicacion);
         std::cout << "ID editorial: "; std::cin >> e.idEditorial; limpiarBuffer();
         std::cout << "Ciudad de publicacion: "; getline(std::cin, e.ciudadPublicacion);
+        std::cout << "ID/Nombre de la obra: "; getline(std::cin, e.idObra);
         return e;
     }
 

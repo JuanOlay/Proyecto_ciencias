@@ -32,7 +32,7 @@ public:
     std::string eliminar(int clave);
     nodo<T>* buscar(int clave);
     void modificar(int clave, const T& nuevaInfo);
-    std::queue<T> recorridoInOrden();
+    std::queue<T> recorridoInOrden() const;
     std::queue<T> recorridoPosOrden();
     std::queue<T> recorridoPreOrden();
     std::queue<T> recorridoPorNiveles();
@@ -345,7 +345,7 @@ void destruir(nodo<T>* r) {
 }
 
 template <class T>
-std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() {
+std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() const{
     std::queue<T> resultado;
     std::stack<nodo<T>*> pila;
     nodo<T>* actual = cab->hijoDer;
