@@ -1,3 +1,12 @@
+/*
+Manejador de Archivos: Clase responsable de la carga y gestión de archivos de datos.
+
+Archivo: ManejadorArchivos.h
+Autores:
+Juan Felipe Guevara Olaya jfguevarao@udistrital.edu.co
+Jean Pierre
+Melissa
+*/
 #ifndef MANEJADORARCHIVOS_H
 #define MANEJADORARCHIVOS_H
 
@@ -11,8 +20,26 @@
 #include "Multilista.h"
 
 class ManejadorArchivos {
+    /*
+    Clase responsable de la carga y gestión de archivos de datos.
+    Métodos:
+    - cargarEditoriales: Carga las editoriales desde un archivo y las inserta en un árbol rojo
+    - cargarAutores: Carga los autores desde un archivo y los inserta en un árbol rojo
+    - cargarLibros: Carga los libros desde un archivo y los inserta en un árbol rojo
+    - cargarEdiciones: Carga las ediciones desde un archivo y las inserta en una lista
+    Descripción:
+    Esta clase proporciona métodos para cargar datos desde archivos de texto y almacenarlos en estructuras
+    de datos adecuadas, como árboles
+    rojo-negro y listas. Facilita la gestión de editoriales, autores, libros y ediciones.
+    */
 public:
     static void cargarEditoriales(const std::string& ruta, ArbolRojiNegro<Editorial>& arbolEditoriales) {
+        /*
+        Método para cargar editoriales desde un archivo y almacenarlas en un árbol rojo.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de las editoriales.
+        - arbolEditoriales: El árbol rojo donde se insertarán las editoriales.
+        */
         std::ifstream archivo(ruta);
         if (!archivo.is_open()) {
             std::cout << "Error al abrir archivo de editoriales." << std::endl;
@@ -34,6 +61,12 @@ public:
     }
     
     static void cargarEditoriales(const std::string& ruta, Lista<Editorial>& listaEditoriales) {
+        /*
+        Método para cargar editoriales desde un archivo y almacenarlas en una lista.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de las editoriales.
+        - listaEditoriales: La lista donde se insertarán las editoriales.
+        */
 	    std::ifstream archivo(ruta);
 	    if (!archivo.is_open()) {
 	        std::cout << "Error al abrir archivo de editoriales." << std::endl;
@@ -75,9 +108,15 @@ public:
 	    archivo.close();
 	}
 
-    static void cargarAutores(const std::string& ruta, 
-                            ArbolRojiNegro<Autor>& arbolAutores, 
-                            Multilista<std::string, std::string>& formacionAutores) {
+    static void cargarAutores(const std::string& ruta,ArbolRojiNegro<Autor>& arbolAutores,
+        Multilista<std::string, std::string>& formacionAutores) {
+        /*
+        Método para cargar autores desde un archivo y almacenarlos en un árbol rojo.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de los autores.
+        - arbolAutores: El árbol rojo donde se insertarán los autores.
+        - formacionAutores: La lista donde se almacenará la formación de los autores.
+        */
         std::ifstream archivo(ruta);
         if (!archivo.is_open()) {
             std::cout << "Error al abrir archivo de autores." << std::endl;
@@ -104,7 +143,6 @@ public:
 
             arbolAutores.insertar(atoi(limpiarNumero(a.id).c_str()), a);
             
-            // Construir índice para consulta 6: formación y edad
             int edad = calcularEdad(a.fechaNacimiento);
             std::string valorFormacion = construirClaveEdadAnio(edad, a.anioPrimeraObra, a.id);
             formacionAutores.insertarEnSublista(a.formacionBase, valorFormacion);
@@ -113,9 +151,15 @@ public:
         archivo.close();
     }
     
- static void cargarAutores(const std::string& ruta, 
-                          Lista<Autor>& listaAutores, 
-                          Multilista<std::string, std::string>& formacionAutores) {
+ static void cargarAutores(const std::string& ruta,Lista<Autor>& listaAutores,
+    Multilista<std::string, std::string>& formacionAutores) {
+        /*
+        Método para cargar autores desde un archivo y almacenarlos en una lista.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de los autores.
+        - listaAutores: La lista donde se insertarán los autores.
+        - formacionAutores: La lista donde se almacenará la formación de los autores.
+        */
 	    std::ifstream archivo(ruta);
 	    if (!archivo.is_open()) {
 	        std::cout << "Error al abrir archivo de autores." << std::endl;
@@ -127,7 +171,7 @@ public:
 	    while (getline(archivo, linea)) {
 	        numLinea++;
 	
-	        if (linea.empty()) continue;  // ? L�nea vac�a
+	        if (linea.empty()) continue;
 	
 	        std::stringstream ssContador(linea);
 	        std::string tempCampo;
@@ -137,8 +181,8 @@ public:
 	        }
 	
 	        if (contadorCampos != 11) {
-	            std::cout << "L�nea " << numLinea << " ignorada (campos inv�lidos): " << linea << "\n";
-	            continue;  // ? L�nea mal formateada
+	            std::cout << "Linea " << numLinea << " ignorada (campos invalidos): " << linea << "\n";
+	            continue;
 	        }
 	
 	        Autor a;
@@ -158,13 +202,12 @@ public:
 	        getline(ss, campo);      a.anioPrimeraObra = std::atoi(campo.c_str());
 	
 	        if (a.id.empty()) {
-	            std::cout << "L�nea " << numLinea << " ignorada (ID vac�o): " << linea << "\n";
+	            std::cout << "Linea " << numLinea << " ignorada (ID vacío): " << linea << "\n";
 	            continue;
 	        }
 	
 	        listaAutores.insertarFinal(a);
 	
-	        // �ndice para consulta 6
 	        int edad = calcularEdad(a.fechaNacimiento);
 	        std::string valorFormacion = construirClaveEdadAnio(edad, a.anioPrimeraObra, a.id);
 	        formacionAutores.insertarEnSublista(a.formacionBase, valorFormacion);
@@ -173,10 +216,16 @@ public:
 	    archivo.close();
 	}
 
-
     static void cargarObras(const std::string& ruta, 
                           ArbolRojiNegro<Obra>& arbolObras, 
                           Multilista<std::string, Obra>& autorObras) {
+        /*
+        Método para cargar obras desde un archivo y almacenarlas en un árbol.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de las obras.
+        - arbolObras: El árbol donde se insertarán las obras.
+        - autorObras: La lista donde se almacenarán las obras por autor.
+        */
         std::ifstream archivo(ruta);
         if (!archivo.is_open()) {
             std::cout << "Error al abrir archivo de obras." << std::endl;
@@ -202,6 +251,13 @@ public:
     static void cargarObras(const std::string& ruta, 
                           Lista<Obra>& listaObras, 
                           Multilista<std::string, Obra>& autorObras) {
+        /*
+        Método para cargar obras desde un archivo y almacenarlas en una lista.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de las obras.
+        - listaObras: La lista donde se insertarán las obras.
+        - autorObras: La lista donde se almacenarán las obras por autor.
+        */
         std::ifstream archivo(ruta);
         if (!archivo.is_open()) {
             std::cout << "Error al abrir archivo de obras." << std::endl;
@@ -227,6 +283,13 @@ public:
     static void cargarEdiciones(const std::string& ruta, 
                               ArbolRojiNegro<Edicion>& arbolEdiciones, 
                               Multilista<std::string, std::string>& editorialAnios) {
+        /*
+        Método para cargar ediciones desde un archivo y almacenarlas en un árbol.
+        Atributos:
+        - ruta: La ruta del archivo de texto que contiene los datos de las ediciones.
+        - arbolEdiciones: El árbol donde se insertarán las ediciones.
+        - editorialAnios: La lista donde se almacenarán las ediciones por editorial y año.
+        */
         std::ifstream archivo(ruta);
         if (!archivo.is_open()) {
             std::cout << "Error al abrir archivo de ediciones." << std::endl;
@@ -256,10 +319,16 @@ public:
         archivo.close();
     }
 
-
-    
-    // Método especializado para construir índices cruzados entre archivos
     static void construirIndicesRelacionados(
+        /*
+        Método para construir índices relacionados entre las diferentes entidades.
+        Atributos:
+        - arbolAutores: El árbol de autores.
+        - arbolEditoriales: El árbol de editoriales.
+        - arbolObras: El árbol de obras.
+        - arbolEdiciones: El árbol de ediciones.
+        - autorTipoPoesia: La lista que relaciona autores con tipos de poesía.
+        */
         ArbolRojiNegro<Autor>& arbolAutores,
         ArbolRojiNegro<Editorial>& arbolEditoriales,
         ArbolRojiNegro<Obra>& arbolObras,
@@ -271,10 +340,6 @@ public:
         Multilista<std::string, std::string>& tipoPoesiaEditorial) {
         
         std::cout << "Construyendo índices relacionados..." << std::endl;
-        
-        // Recorrer todas las obras para construir las relaciones
-        // Nota: Esta es una implementación simplificada que asume que tienes métodos
-        // para recorrer los árboles. Ajusta según tu implementación específica.
         
         construirIndiceAutorTipoPoesia(arbolObras, arbolEdiciones, autorTipoPoesia);
         construirIndiceEditorialAutores(arbolAutores, arbolObras, arbolEdiciones, editorialAutores);
@@ -350,12 +415,9 @@ private:
         return oss.str();
     }
 
-    // Métodos auxiliares para construir índices cruzados
     static void construirIndiceAutorTipoPoesia(ArbolRojiNegro<Obra>& arbolObras,
                                               ArbolRojiNegro<Edicion>& arbolEdiciones,
                                               Multilista<std::string, std::string>& autorTipoPoesia) {
-        // Implementación para relacionar obras con ediciones por tipo de poesía
-        // Necesitarás implementar métodos para recorrer los árboles según tu implementación
         std::cout << "Construyendo índice autor-tipo poesía..." << std::endl;
     }
 
@@ -363,7 +425,6 @@ private:
                                                ArbolRojiNegro<Obra>& arbolObras,
                                                ArbolRojiNegro<Edicion>& arbolEdiciones,
                                                Multilista<std::string, std::string>& editorialAutores) {
-        // Implementación para relacionar editoriales con autores por ciudad y año
         std::cout << "Construyendo índice editorial-autores..." << std::endl;
     }
 
@@ -371,7 +432,6 @@ private:
                                               ArbolRojiNegro<Obra>& arbolObras,
                                               ArbolRojiNegro<Edicion>& arbolEdiciones,
                                               Multilista<std::string, std::string>& editorialPoetas) {
-        // Implementación para contar poetas únicos por editorial
         std::cout << "Construyendo índice editorial-poetas..." << std::endl;
     }
 
@@ -379,42 +439,36 @@ private:
                                                          ArbolRojiNegro<Obra>& arbolObras,
                                                          ArbolRojiNegro<Edicion>& arbolEdiciones,
                                                          Multilista<std::string, std::string>& editorialAutoresNacimiento) {
-        // Implementación para relacionar autores por lugar de nacimiento
         std::cout << "Construyendo índice editorial-autores-nacimiento..." << std::endl;
     }
 
     static void construirIndiceTipoPoesiaEditorial(ArbolRojiNegro<Obra>& arbolObras,
                                                   ArbolRojiNegro<Edicion>& arbolEdiciones,
                                                   Multilista<std::string, std::string>& tipoPoesiaEditorial) {
-        // Implementación para relacionar tipo de poesía con editorial
         std::cout << "Construyendo índice tipo-poesía-editorial..." << std::endl;
     }
 
 public:
-    // Método para obtener información de un autor específico (útil para las consultas)
+
     static bool obtenerAutorPorId(const std::string& idAutor, 
                                  ArbolRojiNegro<Autor>& arbolAutores, 
                                  Autor& autorEncontrado) {
-        // Implementar búsqueda en el árbol
-        // Retorna true si encuentra el autor, false si no
-        return false; // Placeholder - implementar según tu ArbolRojiNegro
+        return false; 
     }
 
     // Método para obtener información de una editorial específica
     static bool obtenerEditorialPorId(const std::string& idEditorial, 
                                      ArbolRojiNegro<Editorial>& arbolEditoriales, 
                                      Editorial& editorialEncontrada) {
-        // Implementar búsqueda en el árbol
-        return false; // Placeholder - implementar según tu ArbolRojiNegro
+        return false;
     }
 
-    // Método para validar consistencia de datos entre archivos
     static bool validarConsistenciaDatos(ArbolRojiNegro<Autor>& arbolAutores,
                                         ArbolRojiNegro<Editorial>& arbolEditoriales,
                                         ArbolRojiNegro<Obra>& arbolObras,
                                         ArbolRojiNegro<Edicion>& arbolEdiciones) {
         std::cout << "Validando consistencia de datos..." << std::endl;
-        return true; // Placeholder
+        return true;
     }
     static void convertirListaAutoresAArbol(Lista<Autor>& lista, ArbolRojiNegro<Autor>& arbol) {
 }

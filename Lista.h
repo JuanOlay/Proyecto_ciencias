@@ -39,10 +39,9 @@ private:
     Nodo<T>* cabeza;
     Nodo<T>* cola;
     int tamano;
-    bool estaOrdenada;      // Nuevo atributo
-    int tipoOrdenamiento;   // Nuevo atributo: 0=ninguno, 1=burbuja, 2=shell, 3=merge
+    bool estaOrdenada;
+    int tipoOrdenamiento;   // 0=ninguno, 1=burbuja, 2=shell, 3=merge
 
-    // Métodos auxiliares privados para ordenamiento
     void _ordenarSegunTamano() {
         if (tamano <= 1 || estaOrdenada) return;
 
@@ -64,7 +63,6 @@ private:
             Nodo<T>* actual = cabeza;
             while (actual != NULL && actual->siguiente != NULL) {
                 if (actual->dato > actual->siguiente->dato) {
-                    // Intercambiar datos
                     T temp = actual->dato;
                     actual->dato = actual->siguiente->dato;
                     actual->siguiente->dato = temp;
@@ -81,7 +79,6 @@ private:
     void _ordenamientoShell() {
         if (tamano <= 1) return;
         
-        // Convertir lista a array temporal para Shell Sort
         T* arr = new T[tamano];
         Nodo<T>* actual = cabeza;
         for (int i = 0; i < tamano; i++) {
@@ -89,7 +86,6 @@ private:
             actual = actual->siguiente;
         }
         
-        // Shell Sort
         for (int gap = tamano / 2; gap > 0; gap /= 2) {
             for (int i = gap; i < tamano; i++) {
                 T temp = arr[i];
@@ -101,7 +97,6 @@ private:
             }
         }
         
-        // Copiar array ordenado de vuelta a la lista
         actual = cabeza;
         for (int i = 0; i < tamano; i++) {
             actual->dato = arr[i];
@@ -116,7 +111,6 @@ private:
     void _ordenamientoMerge() {
         if (tamano <= 1) return;
         
-        // Convertir lista a array temporal para Merge Sort
         T* arr = new T[tamano];
         Nodo<T>* actual = cabeza;
         for (int i = 0; i < tamano; i++) {
@@ -124,10 +118,8 @@ private:
             actual = actual->siguiente;
         }
         
-        // Merge Sort
         _mergeSort(arr, 0, tamano - 1);
         
-        // Copiar array ordenado de vuelta a la lista
         actual = cabeza;
         for (int i = 0; i < tamano; i++) {
             actual->dato = arr[i];
@@ -189,11 +181,9 @@ private:
         delete[] R;
     }
 
-    // Búsqueda binaria (solo si está ordenada)
     T* _busquedaBinaria(T info) const {
         if (!estaOrdenada) return NULL;
         
-        // Convertir a array temporal para búsqueda binaria
         T* arr = new T[tamano];
         Nodo<T>** nodos = new Nodo<T>*[tamano];
         Nodo<T>* actual = cabeza;
@@ -225,7 +215,6 @@ private:
         return resultado;
     }
 
-    // Búsqueda lineal tradicional
     T* _busquedaLineal(T info) const {
         Nodo<T>* actual = cabeza;
         while (actual != NULL) {
@@ -241,10 +230,8 @@ private:
     }
 
 public:
-    // Constructor
     Lista() : cabeza(NULL), cola(NULL), tamano(0), estaOrdenada(false), tipoOrdenamiento(0) {}
 
-    // Destructor
     ~Lista() {
         while (cabeza != NULL) {
             Nodo<T>* temp = cabeza;
@@ -255,7 +242,6 @@ public:
         tamano = 0;
     }
 
-    // Métodos básicos (SIN CAMBIOS)
     int getTamano() const { 
         /*
         Método para obtener el tamaño de la lista.
@@ -377,7 +363,7 @@ public:
 	    if (pos < 0 || pos >= tamano) return nullptr;
 	    Nodo<T>* actual = cabeza;
 	    for (int i = 0; i < pos; ++i) {
-	        if (actual == nullptr) return nullptr; // Protecci�n extra
+	        if (actual == nullptr) return nullptr; // Protecci�n extra
 	        actual = actual->siguiente;
 	    }
 	    return (actual != nullptr) ? &actual->dato : nullptr;
@@ -423,7 +409,7 @@ public:
 
    T& operator[](int indice) {
 	    if (indice < 0 || indice >= tamano)
-	        throw std::out_of_range("�ndice fuera de rango");
+	        throw std::out_of_range("�ndice fuera de rango");
 	
 	    Nodo<T>* actual = cabeza;
 	    int i = 0;
@@ -433,7 +419,7 @@ public:
 	    }
 	
 	    if (!actual)
-	        throw std::runtime_error("Error interno: nodo nulo en posici�n v�lida");
+	        throw std::runtime_error("Error interno: nodo nulo en posici�n v�lida");
 	
 	    return actual->dato;
 	}

@@ -1,3 +1,11 @@
+/*
+MenuBiblioteca.h
+
+Autores:
+Juan Felipe Guevara Olaya jfguevarao@udistrital.edu.co
+Jean Pierre
+Melissa
+*/
 #ifndef MENUBIBLIOTECA_H
 #define MENUBIBLIOTECA_H
 
@@ -9,25 +17,59 @@
 #include "GestionBiblioteca.h"
 
 class MenuBiblioteca {
+    /*
+    Clase que representa el menú principal de la biblioteca.
+    Permite interactuar con el sistema de gestión de la biblioteca.
+    Atributos:
+    - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+    biblioteca.
+    - sistemaInicializado: Indica si el sistema ha sido inicializado correctamente.
+    Métodos:
+    - MenuBiblioteca: Constructor que inicializa el sistema de gestión de la biblioteca.
+    - mostrarMenu: Muestra el menú principal y gestiona las opciones seleccionadas por el
+    usuario.
+    - capturarDatosAutor: Captura los datos de un autor y los agrega al sistema
+    - capturarDatosEditorial: Captura los datos de una editorial y los agrega al sistema
+    - capturarDatosObra: Captura los datos de una obra y los agrega al
+    sistema
+    - capturarDatosEdicion: Captura los datos de una edición y los agrega al
+    sistema
+    - validarTipoPoesia: Valida el tipo de poesía ingresado por el usuario
+    - validarSexo: Valida el sexo ingresado por el usuario
+    - validarFormacionBase: Valida la formación base ingresada por el usuario
+    - limpiarBuffer: Limpia el buffer de entrada para evitar problemas con la lectura de datos
+    - pausar: Pausa la ejecución del programa hasta que el usuario presione Enter
+    Descripción:
+    Esta clase proporciona un menú interactivo para gestionar los datos de una biblioteca,
+    permitiendo al usuario agregar autores, editoriales, obras y ediciones. También incluye
+    validaciones para asegurar que los datos ingresados sean correctos y únicos.
+    */
 private:
     GestionBiblioteca gestion;
     bool sistemaInicializado;
 
     void limpiarBuffer() {
+        /*
+        Limpia el buffer de entrada para evitar problemas con la lectura de datos.
+        */
         std::cin.clear();
         while (std::cin.get() != '\n');
     }
 
     void pausar() {
+        /*
+        Pausa la ejecución del programa hasta que el usuario presione Enter.
+        */
         std::cout << "\nPresione Enter para continuar...";
         std::cin.get();
     }
 
-    // Captura de datos
     Autor capturarDatosAutor() {
+        /*
+        Captura los datos de un autor y los agrega al sistema.
+        */
 	    Autor a;
 	
-	    // Validar que el ID no se repita
 	    do {
 	        std::cout << "ID (único): ";
 	        std::cin >> a.id;
@@ -36,7 +78,7 @@ private:
 	        if (gestion.getControlAutores().buscarPorID(a.id) != nullptr) {
 	            std::cout << "Error: Ya existe un autor con ese ID. Intente nuevamente.\n";
 	        } else {
-	            break;  // ID válido
+	            break;
 	        }
 	    } while (true);
 	
@@ -56,9 +98,21 @@ private:
 	}
 
     Editorial capturarDatosEditorial() {
+        /*
+        Captura los datos de una editorial y los agrega al sistema.
+        Asegura que el ID sea único y no exista previamente en el sistema.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Retorno:
+        - Un objeto Editorial con los datos capturados.
+        Descripción:
+        Esta función solicita al usuario que ingrese los datos de una editorial, asegurándose de que
+        el ID sea único. Si el ID ya existe, solicita al usuario que ingrese un
+        nuevo ID.
+        */
         Editorial e;
         
-        // Validar que el ID no se repita
         do {
             std::cout << "ID (único): ";
             std::cin >> e.id;
@@ -67,7 +121,7 @@ private:
             if (gestion.getControlEditoriales().buscarPorID(e.id) != nullptr) {
                 std::cout << "Error: Ya existe una editorial con ese ID. Intente nuevamente.\n";
             } else {
-                break;  // ID válido
+                break;
             }
         } while (true);
         
@@ -78,6 +132,21 @@ private:
     }
 
     Obra capturarDatosObra() {
+        /*
+        Captura los datos de una obra y los agrega al sistema.
+        Asegura que el ID del autor sea válido y exista en el sistema.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Retorno:
+        - Un objeto Obra con los datos capturados.
+        Descripción:
+        Esta función solicita al usuario que ingrese los datos de una obra, asegurándose de que
+        el ID del autor sea válido y exista en el sistema. Si el ID del autor no
+        existe, solicita al usuario que ingrese un nuevo ID.
+        Si el tipo de poesía no es válido, solicita al usuario que ingrese un nuevo tipo
+        de poesía.
+        */
         Obra o;
         std::cout << "Nombre: "; getline(std::cin, o.nombre);
         o.tipoPoesia = validarTipoPoesia();
@@ -87,29 +156,53 @@ private:
     }
 
     Edicion capturarDatosEdicion() {
+        /*
+        Captura los datos de una edición y los agrega al sistema.
+        Asegura que el ID de la editorial sea válido y exista en el sistema.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Retorno:
+        - Un objeto Edicion con los datos capturados.
+        Descripción:
+        Esta función solicita al usuario que ingrese los datos de una edición, asegurándose de que
+        el ID de la editorial sea válido y exista en el sistema. Si el ID de la editorial no
+        existe, solicita al usuario que ingrese un nuevo ID.
+        */
         Edicion e;
         std::cout << "Numero de edicion: "; std::cin >> e.numeroEdicion; limpiarBuffer();
         std::cout << "Fecha de publicacion (DD/MM/YYYY): "; getline(std::cin, e.fechaPublicacion);
         std::cout << "ID editorial: "; std::cin >> e.idEditorial; limpiarBuffer();
         std::cout << "Ciudad de publicacion: "; getline(std::cin, e.ciudadPublicacion);
-        std::cout << "ID/Nombre de la obra: "; getline(std::cin, e.idObra);
+        std::cout << "Nombre de la obra: "; getline(std::cin, e.idObra);
         return e;
     }
 
-    // Validaciones
     std::string validarTipoPoesia() {
+        /*
+        Valida el tipo de poesía ingresado por el usuario.
+        Parámetros:
+        - tipo: El tipo de poesía a validar.
+        Retorno:
+        - El tipo de poesía validado.
+        */
         std::string tipo;
         do {
             std::cout << "Tipo de poesia (decima, soneto, himno, haiku, romance, octava real, lira o verso libre): ";
             getline(std::cin, tipo);
-            // Convertir a minúsculas para comparación
             for (char& c : tipo) c = std::tolower(c);
         } while (tipo != "decima" && tipo != "soneto" && tipo != "himno" && tipo != "haiku" && tipo != "romance" 
 		&& tipo != "octava real" && tipo != "lira" && tipo != "verso libre");
         return tipo;
     }
-
     char validarSexo() {
+        /*
+        Valida el sexo ingresado por el usuario.
+        Parámetros:
+        - sexo: El sexo a validar.
+        Retorno:
+        - El sexo validado.
+        */
         char s;
         do {
             std::cout << "Sexo (M/F): ";
@@ -121,19 +214,33 @@ private:
     }
 
     std::string validarFormacionBase() {
+        /*
+        Valida la formación base ingresada por el usuario.
+        Parámetros:
+        - formacion: La formación base a validar.
+        Retorno:
+        - La formación base validada.
+        */
         std::string formacion;
         do {
             std::cout << "Formacion base (literatura, artes, ciencias sociales, ingenieria, areas de salud, jurisprudencia, otros): ";
             getline(std::cin, formacion);
-            // Convertir a minúsculas para comparación
             for (char& c : formacion) c = std::tolower(c);
         } while (formacion != "literatura" && formacion != "artes" && formacion != "ciencias sociales" &&
                  formacion != "ingenieria" && formacion != "areas de salud" && formacion != "jurisprudencia" && formacion != "otros");
         return formacion;
     }
 
-    // Menús específicos
     void menuAutores() {
+        /*
+        Muestra el menú de autores y gestiona las opciones seleccionadas.
+        Permite agregar, mostrar y eliminar autores.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para gestionar los autores de la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
@@ -178,6 +285,15 @@ private:
     }
 
     void menuEditoriales() {
+        /*
+        Muestra el menú de editoriales y gestiona las opciones seleccionadas.
+        Permite agregar, mostrar y eliminar editoriales.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para gestionar las editoriales de la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
@@ -222,6 +338,15 @@ private:
     }
 
     void menuObras() {
+        /*
+        Muestra el menú de obras y gestiona las opciones seleccionadas.
+        Permite agregar, mostrar y eliminar obras.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para gestionar las obras de la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
@@ -266,6 +391,15 @@ private:
     }
 
     void menuEdiciones() {
+        /*
+        Muestra el menú de ediciones y gestiona las opciones seleccionadas.
+        Permite agregar, mostrar y eliminar ediciones.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para gestionar las ediciones de la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
@@ -310,11 +444,20 @@ private:
     }
 
     void menuConsultas() {
+        /*
+        Muestra el menú de consultas y gestiona las opciones seleccionadas.
+        Permite realizar diversas consultas sobre la biblioteca.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para realizar consultas sobre la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
             std::cout << "\n--- MENU CONSULTAS ---\n";
-            std::cout << "1. Obras de un autor por editorial y anio\n";
+            std::cout << "1. Obras de un autor por editorial y año\n";
             std::cout << "2. Obras de un autor por tipo de poesia\n";
             std::cout << "3. Autores publicados por editorial\n";
             std::cout << "4. Editoriales con mas de N poetas\n";
@@ -389,7 +532,7 @@ private:
 				
 				    std::cout << "Ingrese edad máxima: ";
 				    std::cin >> edadMax;
-				    limpiarBuffer(); // para limpiar el salto de línea pendiente
+				    limpiarBuffer();
 				
 				    std::cout << "\n--- RESULTADO DE LA CONSULTA ---\n";
 				
@@ -418,6 +561,15 @@ private:
     }
 
     void menuSistema() {
+        /*
+        Muestra el menú del sistema y gestiona las opciones seleccionadas.
+        Permite inicializar el sistema, construir índices, optimizar estructuras y guardar datos.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para gestionar el sistema de la biblioteca.
+        */
         int opcion;
         do {
             system("cls");
@@ -473,6 +625,16 @@ public:
     MenuBiblioteca() : sistemaInicializado(false) {}
 
     void mostrarMenuPrincipal() {
+        /*
+        Muestra el menú principal y gestiona las opciones seleccionadas.
+        Permite acceder a las diferentes secciones del sistema.
+        Parámetros:
+        - gestion: Objeto de la clase GestionBiblioteca que maneja las operaciones de la
+        biblioteca.
+        Descripción:
+        Este método muestra un menú interactivo para navegar por las diferentes secciones
+        del sistema de gestión de la biblioteca.
+        */
         std::cout << "\n=== SISTEMA DE GESTION DE BIBLIOTECA ===\n";
         if (!sistemaInicializado) {
             std::cout << "SISTEMA NO INICIALIZADO\n";
@@ -488,6 +650,9 @@ public:
     }
 
     void mostrarBienvenida() {
+        /*
+        Muestra la pantalla de bienvenida del sistema.
+        */
         system("cls");
         std::cout << "============================================================\n";
         std::cout << "           SISTEMA DE GESTION DE BIBLIOTECA                 \n";
@@ -514,6 +679,9 @@ public:
     }
 
     void ejecutar() {
+        /*
+        Método principal que ejecuta el menú del sistema.
+        */
         mostrarBienvenida();
         
         int opcion;

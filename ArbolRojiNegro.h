@@ -1,3 +1,10 @@
+/*
+ArbolRojiNegro.h
+Autores:
+Juan Felipe Guevara Olaya jfguevarao1211@udistrital.edu.co
+Jean pierre
+Melissa*/
+
 #ifndef ARBOLROJINEGRO_H
 #define ARBOLROJINEGRO_H
 
@@ -8,6 +15,13 @@
 
 template <class T>
 struct nodo {
+    /*
+    Estructura de un nodo
+    Atributos:
+    - info: Información del nodo
+    - clave: Clave del nodo
+    - color: Color del nodo (Rojo = 1, Negro = 0)
+    */
     T info;
     int clave;
     bool color = 1; // Rojo = 1, Negro = 0
@@ -18,6 +32,15 @@ struct nodo {
 
 template <class T>
 class ArbolRojiNegro {
+    /*
+    Clase que representa un árbol rojo-negro
+    Atributos:
+    - numElem: Número de elementos en el árbol
+    - cab: Puntero a la raíz del árbol
+   Métodos:
+    - rotarIzquierda: Rota un nodo hacia la izquierda
+    - rotarDerecha: Rota un nodo hacia la derecha
+    */
 private:
     int numElem;
     nodo<T>* cab;
@@ -40,6 +63,16 @@ public:
 
 template <class T>
 ArbolRojiNegro<T>::ArbolRojiNegro(){
+    /*
+    Constructor de la clase ArbolRojiNegro
+    Inicializa la raíz del árbol y el contador de elementos.
+    Atributos:
+    - cab: Puntero a la raíz del árbol, inicializado como un nodo vacío
+    - numElem: Contador de elementos, inicializado a 0
+    Descripción:
+    Este constructor crea un árbol rojo-negro vacío. La raíz del árbol es un nodo que no contiene información y sus hijos son nulos.
+    El contador de elementos se inicializa a 0.
+    */
     cab = new nodo<T>;
     cab -> hijoDer = NULL;
     numElem = 0;
@@ -47,15 +80,38 @@ ArbolRojiNegro<T>::ArbolRojiNegro(){
 
 template <class T>
 ArbolRojiNegro<T>::~ArbolRojiNegro() {
+    /*
+    Destructor de la clase ArbolRojiNegro
+    Descripción:
+    Este destructor se encarga de liberar la memoria ocupada por el árbol.
+    */
 }
 
 template <class T>
 bool ArbolRojiNegro<T>::arbolVacio() {
+    /*
+    Método que verifica si el árbol está vacío.
+    Descripción:
+    Este método comprueba si la raíz del árbol es nula, lo que indica que el árbol no contiene elementos.
+    Parametros:
+    Sin parametros
+    Retorno:
+    - true si el árbol está vacío, false en caso contrario
+    */
     return cab -> hijoDer == NULL;
 }
 
 template <class T>
 void ArbolRojiNegro<T>::rotarIzquierda(nodo<T>* nodoDescendente) {
+    /*
+    Método que rota un nodo hacia la izquierda.
+    Descripción:
+    Este método realiza una rotación a la izquierda en el árbol rojo-negro.
+    Parametros:
+    - nodoDescendente: Puntero al nodo que se va a rotar hacia la izquierda.
+    Retorno:
+    Sin retorno
+    */
     nodo<T>* nodoAscendente = nodoDescendente->hijoDer;
     nodoDescendente->hijoDer = nodoAscendente->hijoIzq;
 
@@ -79,15 +135,22 @@ void ArbolRojiNegro<T>::rotarIzquierda(nodo<T>* nodoDescendente) {
 
 template <class T>
 void ArbolRojiNegro<T>::rotarDerecha(nodo<T>* nodoDescendente) {
+    /*
+    Método que rota un nodo hacia la derecha.
+    Descripción:
+    Este método realiza una rotación a la derecha en el árbol rojo-negro.
+    Parametros:
+    - nodoDescendente: Puntero al nodo que se va a rotar hacia la derecha.
+    Retorno:
+    Sin retorno
+    */
     nodo<T>* nodoAscendente = nodoDescendente->hijoIzq;
     nodoDescendente->hijoIzq = nodoAscendente->hijoDer;
 
     if (nodoAscendente->hijoDer != NULL) {
         nodoAscendente->hijoDer->padre = nodoDescendente;
     }
-
     nodoAscendente->padre = nodoDescendente->padre;
-
     if (nodoDescendente->padre == NULL) {
         cab = nodoAscendente;
     } else if (nodoDescendente == nodoDescendente->padre->hijoDer) {
@@ -95,13 +158,23 @@ void ArbolRojiNegro<T>::rotarDerecha(nodo<T>* nodoDescendente) {
     } else {
         nodoDescendente->padre->hijoIzq = nodoAscendente;
     }
-
     nodoAscendente->hijoDer = nodoDescendente;
     nodoDescendente->padre = nodoAscendente;
 }
 
 template <class T>
 std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
+    /*
+    Método que inserta un nuevo nodo en el árbol rojo-negro.
+    Descripción:
+    Este método se encarga de insertar un nuevo nodo en el árbol manteniendo las propiedades del árbol rojo-negro.
+    Parametros:
+    - clave: La clave del nuevo nodo.
+    - info: La información del nuevo nodo.
+    Retorno:
+    - "Hecho" si la inserción fue exitosa.
+    - "Clave duplicada" si la clave ya existe en el árbol.
+    */
     nodo<T>* nodoNuevo = new nodo<T>;
     nodoNuevo->clave = clave;
     nodoNuevo->info = info;
@@ -126,7 +199,6 @@ std::string ArbolRojiNegro<T>::insertar(int clave, T info) {
             return "Clave duplicada";
         }
     }
-
     nodoNuevo->padre = padreTemp;
     if (clave < padreTemp->clave)
         padreTemp->hijoIzq = nodoNuevo;
@@ -196,13 +268,22 @@ nodo<T>* ArbolRojiNegro<T>::buscar(int clave) {
 
 template <class T>
 std::string ArbolRojiNegro<T>::eliminar(int clave) {
+    /*
+    Método que elimina un nodo del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de eliminar un nodo del árbol manteniendo las propiedades del árbol rojo-negro.
+    Parametros:
+    - clave: La clave del nodo a eliminar.
+    Retorno:
+    - "Hecho" si la eliminación fue exitosa.
+    - "No se puede hacer la eliminación" si el nodo no se encuentra en el árbol.
+    */
     nodo<T>* nodoABorrar = buscar(clave);
     if (nodoABorrar == NULL) return "No se puede hacer la eliminacion dado que este nodo no se encuentra en el arbol";
 
     nodo<T>* y = nodoABorrar;
     nodo<T>* x = NULL;
     int yColorOriginal = y->color;
-
 
     if (nodoABorrar->hijoIzq != NULL && nodoABorrar->hijoDer != NULL) {
         y = nodoABorrar->hijoDer;
@@ -331,6 +412,17 @@ std::string ArbolRojiNegro<T>::eliminar(int clave) {
 
 template <class T>
 void ArbolRojiNegro<T>::modificar(int clave, const T& nuevaInfo) {
+    /*
+    Método que modifica la información de un nodo en el árbol rojo-negro.
+    Descripción:
+    Este método se encarga de modificar la información de un nodo existente en el árbol.
+    Parametros:
+    - clave: La clave del nodo a modificar.
+    - nuevaInfo: La nueva información que se asignará al nodo.
+    Retorno:
+    - "Hecho" si la modificación fue exitosa.
+    - "No se encontró el nodo" si el nodo no existe en el árbol.
+    */
     nodo<T>* n = buscar(clave);
     if (n != NULL)
         n->info = nuevaInfo;
@@ -338,6 +430,15 @@ void ArbolRojiNegro<T>::modificar(int clave, const T& nuevaInfo) {
 
 template <class T>
 void destruir(nodo<T>* r) {
+    /*
+    Método que destruye un nodo del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de liberar la memoria ocupada por un nodo y sus hijos.
+    Parametros:
+    - r: Puntero al nodo que se va a destruir.
+    Retorno:
+    Sin retorno
+    */
     if (r == NULL) return;
     destruir(r->hijoIzq);
     destruir(r->hijoDer);
@@ -346,6 +447,13 @@ void destruir(nodo<T>* r) {
 
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() const{
+    /*
+    Método que realiza un recorrido en orden del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de recorrer el árbol en orden (izquierda, raíz, derecha) y almacenar los valores en una cola.
+    Retorno:
+    - Una cola con los valores del árbol en orden.
+    */
     std::queue<T> resultado;
     std::stack<nodo<T>*> pila;
     nodo<T>* actual = cab->hijoDer;
@@ -366,6 +474,13 @@ std::queue<T> ArbolRojiNegro<T>::recorridoInOrden() const{
 
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPreOrden() {
+    /*
+    Método que realiza un recorrido en preorden del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de recorrer el árbol en preorden (raíz, izquierda, derecha) y almacenar los valores en una cola.
+    Retorno:
+    - Una cola con los valores del árbol en preorden.
+    */
     std::queue<T> resultado;
     if (cab->hijoDer == NULL) return resultado;
 
@@ -386,6 +501,13 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPreOrden() {
 
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPosOrden() {
+    /*
+    Método que realiza un recorrido en postorden del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de recorrer el árbol en postorden (izquierda, derecha, raíz) y almacenar los valores en una cola.
+    Retorno:
+    - Una cola con los valores del árbol en postorden.
+    */
     std::queue<T> resultado;
     if (cab->hijoDer == NULL) return resultado;
 
@@ -411,6 +533,13 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPosOrden() {
 
 template <class T>
 std::queue<T> ArbolRojiNegro<T>::recorridoPorNiveles() {
+    /*
+    Método que realiza un recorrido por niveles del árbol rojo-negro.
+    Descripción:
+    Este método se encarga de recorrer el árbol por niveles (de arriba hacia abajo y de izquierda a derecha) y almacenar los valores en una cola.
+    Retorno:
+    - Una cola con los valores del árbol por niveles.
+    */
     std::queue<T> resultado;
     if (cab->hijoDer == NULL) return resultado;
 
@@ -429,5 +558,4 @@ std::queue<T> ArbolRojiNegro<T>::recorridoPorNiveles() {
     return resultado;
 }
 
-
-#endif
+#endif // ARBOLROJINEGRO_H
