@@ -377,21 +377,26 @@ private:
                     pausar();
                     break;
                 }
-                case 6: {
-                    std::string formacion;
-                    int edadMin, edadMax;
-                    std::cout << "Ingrese formacion: ";
-                    getline(std::cin, formacion);
-                    std::cout << "Ingrese edad minima: ";
-                    std::cin >> edadMin;
-                    std::cout << "Ingrese edad maxima: ";
-                    std::cin >> edadMax;
-                    limpiarBuffer();
-                    std::cout << "\n--- RESULTADO DE LA CONSULTA ---\n";
-                    gestion.consultaAutoresPorEdadYFormacion(formacion, edadMin, edadMax);
-                    pausar();
+				case 6: {
+				    std::string formacion;
+				    int edadMin, edadMax;
+				
+				    std::cout << "Ingrese formación: ";
+				    std::getline(std::cin, formacion);
+				
+				    std::cout << "Ingrese edad mínima: ";
+				    std::cin >> edadMin;
+				
+				    std::cout << "Ingrese edad máxima: ";
+				    std::cin >> edadMax;
+				    limpiarBuffer(); // para limpiar el salto de línea pendiente
+				
+				    std::cout << "\n--- RESULTADO DE LA CONSULTA ---\n";
+				
+				    gestion.consultaAutoresPorEdadYFormacion(edadMin, edadMax, formacion);
+				    pausar();
                     break;
-                }
+				}
                 case 7: {
                     std::string tipoPoesia, idEditorial;
                     std::cout << "Ingrese tipo de poesia: ";
@@ -400,7 +405,7 @@ private:
                     std::cin >> idEditorial;
                     limpiarBuffer();
                     std::cout << "\n--- RESULTADO DE LA CONSULTA ---\n";
-                    gestion.consultaAutoresPorTipoYEditorial(tipoPoesia, idEditorial);
+                    gestion.consultaAutoresPorTipoPoesiaYEditorial(tipoPoesia, idEditorial);
                     pausar();
                     break;
                 }

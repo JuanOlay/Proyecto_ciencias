@@ -450,7 +450,8 @@ public:
                     for (int edIdx : obraEdiciones[obra.nombre]) {
                         const Edicion& edicion = ediciones[edIdx];
                         int anio = extraerAnio(edicion.fechaPublicacion);
-                        resultado[edicion.idEditorial][anio]++;
+                        std::string nombreEditorial = obtenerNombreEditorial(edicion.idEditorial);
+                        resultado[nombreEditorial][anio]++;
                     }
                 }
             }
@@ -464,7 +465,7 @@ public:
         
         int totalObras = 0;
         for (const auto& editorial : resultado) {
-            std::cout << "\nEditorial: " << obtenerNombreEditorial(editorial.first) << std::endl;
+            std::cout << "\nEditorial: " << editorial.first << std::endl;
             for (const auto& anio : editorial.second) {
                 std::cout << "  Año " << anio.first << ": " << anio.second << " obras" << std::endl;
                 totalObras += anio.second;
@@ -577,10 +578,9 @@ public:
             }
         }
         
-        // Mostrar resultados
         int editorialesEncontradas = 0;
         for (const auto& editorial : poetasPorEditorial) {
-            if (editorial.second.size() > numeroMinimo) {
+            if (static_cast<int>(editorial.second.size()) > numeroMinimo) {
                 editorialesEncontradas++;
                 Editorial* ed = obtenerEditorialPorId(editorial.first);
                 if (ed) {
@@ -590,6 +590,7 @@ public:
                 }
             }
         }
+
         
         std::cout << "\nTotal de editoriales encontradas: " << editorialesEncontradas << std::endl;
     }
@@ -600,7 +601,7 @@ public:
         std::cout << "Editorial: " << obtenerNombreEditorial(idEditorial) << std::endl;
         
         // Estructura: País -> Ciudad -> Sexo -> Contador
-        std::map<std::string, std::map<std::string, std::map<char, int>>> resultado;
+        std::map<std::string, std::map<std::string, std::map<char, std::vector<std::string>>>> resultado;
         std::set<std::string> autoresUnicos;
         
         if (editorialEdiciones.find(idEditorial) != editorialEdiciones.end()) {
@@ -612,7 +613,8 @@ public:
                         Autor* autor = obtenerAutorPorId(obra.idAutor);
                         if (autor && autoresUnicos.find(autor->id) == autoresUnicos.end()) {
                             autoresUnicos.insert(autor->id);
-                            resultado[autor->paisNacimiento][autor->ciudadNacimiento][autor->sexo]++;
+                            std::string nombreCompleto = autor->nombre + " " + autor->apellido;
+                            resultado[autor->paisNacimiento][autor->ciudadNacimiento][autor->sexo].push_back(nombreCompleto);
                         }
                         break;
                     }
@@ -630,9 +632,18 @@ public:
             std::cout << "\nPaís: " << pais.first << std::endl;
             for (const auto& ciudad : pais.second) {
                 std::cout << "  Ciudad: " << ciudad.first << std::endl;
-                int hombres = ciudad.second.count('M') ? ciudad.second.at('M') : 0;
-                int mujeres = ciudad.second.count('F') ? ciudad.second.at('F') : 0;
-                std::cout << "    Hombres: " << hombres << ", Mujeres: " << mujeres << std::endl;
+                if (ciudad.second.count('M')) {
+                    std::cout << "    Hombres (" << ciudad.second.at('M').size() << "):" << std::endl;
+                    for (const auto& nombre : ciudad.second.at('M')) {
+                        std::cout << "      - " << nombre << std::endl;
+                    }
+                }
+                if (ciudad.second.count('F')) {
+                    std::cout << "    Mujeres (" << ciudad.second.at('F').size() << "):" << std::endl;
+                    for (const auto& nombre : ciudad.second.at('F')) {
+                        std::cout << "      - " << nombre << std::endl;
+                    }
+                }
             }
         }
     }
@@ -649,8 +660,9 @@ public:
             int edad = calcularEdad(autor.fechaNacimiento);
             
             // Verificar si el autor cumple con los criterios
-            if (edad >= edadMinima && edad <= edadMaxima && 
-                autor.formacionBase == formacionBase) {
+            if (edad >= edadMinima && edad <= edadMaxima && edad > 0 && 
+    autor.formacionBase.find(formacionBase) != std::string::npos) {
+
                 
                 std::string infoAutor = autor.nombre + " " + autor.apellido + 
                                        " (Edad: " + std::to_string(edad) + 
@@ -690,10 +702,12 @@ public:
         
         // Buscar obras del tipo de poesía especificado
         for (const auto& obra : obras) {
-            if (obra.tipoPoesia == tipoPoesia) {
+            if (obra.tipoPoesia.find(tipoPoesia) != std::string::npos) {
                 // Buscar ediciones de esta obra en la editorial especificada
-                for (const auto& edicion : ediciones) {
-                    if (edicion.idObra == obra.nombre && edicion.idEditorial == idEditorial) {
+                if (obraEdiciones.find(obra.nombre) != obraEdiciones.end()) {
+                    for (int edIdx : obraEdiciones[obra.nombre]) {
+                        const Edicion& edicion = ediciones[edIdx];
+                        if (edicion.idEditorial == idEditorial) {
                         
                         // Obtener información del autor
                         std::string infoAutor = obtenerNombreAutor(obra.idAutor);
@@ -750,6 +764,7 @@ public:
         std::cout << "Total de autores: " << totalAutores << std::endl;
         std::cout << "Total de ediciones: " << totalEdiciones << std::endl;
     }
+}
 };
 
 #endif // GESTIONBIBLIOTECA_H
