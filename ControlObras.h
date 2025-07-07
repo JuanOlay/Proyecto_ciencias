@@ -3,6 +3,9 @@
 
 #include "Entidades.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <set>
 #include "Lista.h"
 
 class ControlObras {
@@ -12,18 +15,20 @@ private:
 public:
     void agregar(const Obra& o) { obras.insertarFinal(o); }
 
-    bool eliminarPorNombre(const string& nombre) {
-        for (int i = 0; i < obras.getTamano(); ++i) {
-            Obra* o = obras.buscarEnPos(i);
-            if (o != NULL && o->nombre == nombre) {
-                obras.eliminar(*o);
-                return true;
-            }
-        }
-        return false;
-    }
+    bool eliminarPorNombre(const std::string& nombre, const std::string& rutaArchivo) {
+	    for (int i = 0; i < obras.getTamano(); ++i) {
+	        Obra* o = obras.buscarEnPos(i);
+	        if (o != NULL && o->nombre == nombre) {
+	            obras.eliminar(*o);
+	            guardarEnArchivo(rutaArchivo);  // Reescribe archivo con la nueva lista
+	            return true;
+	        }
+	    }
+	    return false;
+	}
 
-    Obra* buscarPorNombre(const string& nombre) {
+
+    Obra* buscarPorNombre(const std::string& nombre) {
         for (int i = 0; i < obras.getTamano(); ++i) {
             Obra* o = obras.buscarEnPos(i);
             if (o != NULL && o->nombre == nombre) return o;
@@ -35,7 +40,7 @@ public:
         for (int i = 0; i < obras.getTamano(); ++i) {
             Obra* o = obras.buscarEnPos(i);
             if (o != NULL) {
-                cout << o->nombre << " - " << o->tipoPoesia << endl;
+                std::cout << o->nombre << " - " << o->tipoPoesia << std::endl;
             }
         }
     }
@@ -45,16 +50,23 @@ public:
     void setObras(const Lista<Obra>& lista) {
         obras = lista;
     }
-        void guardarEnArchivo(const std::string& ruta) {
-        std::ofstream archivo(ruta);
-        for (int i = 0; i < obras.getTamano(); ++i) {
-            const Obra& o = obras[i];
-            archivo << o.nombre << ";" << o.tipoPoesia << ";" << o.idAutor << "\n";
-        }
-        archivo.close();
-    }
-    
+
+    // ? Guarda solo obras nuevas (sin sobrescribir el archivo)
+    void guardarEnArchivo(const std::string& ruta) {
+	    std::ofstream archivo(ruta);  // modo truncado, sobrescribe todo
+	    if (!archivo.is_open()) {
+	        std::cout << "Error al abrir archivo de obras." << std::endl;
+	        return;
+	    }
+	
+	    for (int i = 0; i < obras.getTamano(); ++i) {
+	        const Obra& o = obras[i];
+	        archivo << o.nombre << ";" << o.tipoPoesia << ";" << o.idAutor << "\n";
+	    }
+	
+	    archivo.close();
+	}
 };
 
-#endif
+#endif // CONTROLOBRA_H
 

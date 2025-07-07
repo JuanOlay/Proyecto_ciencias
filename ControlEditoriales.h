@@ -3,6 +3,8 @@
 
 #include "Entidades.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "Lista.h"
 
 class ControlEditoriales {
@@ -10,20 +12,22 @@ private:
     Lista<Editorial> editoriales;
 
 public:
-    void agregar(const Editorial& e) { editoriales.insertarFinal(e); }
+    void agregar(const Editorial& e) { 
+        editoriales.insertarFinal(e); 
+    }
 
-    bool eliminarPorID(const string& id) {
+    bool eliminarPorID(const std::string& id, const std::string& rutaArchivo) {
         for (int i = 0; i < editoriales.getTamano(); ++i) {
             Editorial* e = editoriales.buscarEnPos(i);
             if (e != NULL && e->id == id) {
                 editoriales.eliminar(*e);
-                return true;
+                return guardarEnArchivo(rutaArchivo); // Actualiza archivo completo
             }
         }
         return false;
     }
 
-    Editorial* buscarPorID(const string& id) {
+    Editorial* buscarPorID(const std::string& id) {
         for (int i = 0; i < editoriales.getTamano(); ++i) {
             Editorial* e = editoriales.buscarEnPos(i);
             if (e != NULL && e->id == id) return e;
@@ -35,7 +39,7 @@ public:
         for (int i = 0; i < editoriales.getTamano(); ++i) {
             Editorial* e = editoriales.buscarEnPos(i);
             if (e != NULL) {
-                cout << e->id << ": " << e->nombre << endl;
+                std::cout << e->id << ": " << e->nombre << std::endl;
             }
         }
     }
@@ -45,14 +49,24 @@ public:
     void setEditoriales(const Lista<Editorial>& lista) {
         editoriales = lista;
     }
-        void guardarEnArchivo(const std::string& ruta) {
-        std::ofstream archivo(ruta);
+
+    // ?? Sobrescribe el archivo completo con los datos actuales en memoria
+    bool guardarEnArchivo(const std::string& archivo) {
+        std::ofstream file(archivo); // modo truncado, borra y reescribe
+        if (!file.is_open()) return false;
+
         for (int i = 0; i < editoriales.getTamano(); ++i) {
-            const Editorial& e = editoriales[i];
-            archivo << e.id << ";" << e.nombre << ";" << e.ciudadPrincipal << ";" << e.paisPrincipal << "\n";
+            Editorial* e = editoriales.buscarEnPos(i);
+            if (e != NULL) {
+                file << e->id << ";" << e->nombre << ";" 
+                     << e->ciudadPrincipal << ";" << e->paisPrincipal << "\n";
+            }
         }
-        archivo.close();
+
+        file.close();
+        return true;
     }
 };
 
-#endif
+#endif // CONTROLEDITORIALES_H
+

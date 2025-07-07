@@ -1,0 +1,3 @@
+Cien años de soledad;verso libre;A001
+Veinte poemas de amor;soneto;A002
+Ingeniera de versos;haiku;A003

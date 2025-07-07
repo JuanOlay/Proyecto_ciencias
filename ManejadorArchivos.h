@@ -32,6 +32,48 @@ public:
 
         archivo.close();
     }
+    
+    static void cargarEditoriales(const std::string& ruta, Lista<Editorial>& listaEditoriales) {
+	    std::ifstream archivo(ruta);
+	    if (!archivo.is_open()) {
+	        std::cout << "Error al abrir archivo de editoriales." << std::endl;
+	        return;
+	    }
+	
+	    std::string linea;
+	    int numLinea = 0;
+	    while (getline(archivo, linea)) {
+	        numLinea++;
+	        if (linea.empty()) continue;
+	
+	        std::stringstream ssContador(linea);
+	        std::string campoTemporal;
+	        int contadorCampos = 0;
+	        while (getline(ssContador, campoTemporal, ';')) {
+	            contadorCampos++;
+	        }
+	        if (contadorCampos != 4) {
+	            std::cout << "Línea " << numLinea << " ignorada (formato inválido): " << linea << "\n";
+	            continue;
+	        }
+	
+	        Editorial e;
+	        std::stringstream ss(linea);
+	        getline(ss, e.id, ';');
+	        getline(ss, e.nombre, ';');
+	        getline(ss, e.ciudadPrincipal, ';');
+	        getline(ss, e.paisPrincipal);
+	
+	        if (e.id.empty()) {
+	            std::cout << "Línea " << numLinea << " ignorada (ID vacío): " << linea << "\n";
+	            continue;
+	        }
+	
+	        listaEditoriales.insertarFinal(e);
+	    }
+	
+	    archivo.close();
+	}
 
     static void cargarAutores(const std::string& ruta, 
                             ArbolRojiNegro<Autor>& arbolAutores, 
@@ -156,6 +198,31 @@ public:
 
         archivo.close();
     }
+    
+    static void cargarObras(const std::string& ruta, 
+                          Lista<Obra>& listaObras, 
+                          Multilista<std::string, Obra>& autorObras) {
+        std::ifstream archivo(ruta);
+        if (!archivo.is_open()) {
+            std::cout << "Error al abrir archivo de obras." << std::endl;
+            return;
+        }
+
+        std::string linea;
+        while (getline(archivo, linea)) {
+            Obra o;
+            std::stringstream ss(linea);
+
+            getline(ss, o.nombre, ';');
+            getline(ss, o.tipoPoesia, ';');
+            getline(ss, o.idAutor);
+
+           	listaObras.insertarFinal(o);
+            autorObras.insertarEnSublista(o.idAutor, o);
+        }
+
+        archivo.close();
+    }
 
     static void cargarEdiciones(const std::string& ruta, 
                               ArbolRojiNegro<Edicion>& arbolEdiciones, 
@@ -189,6 +256,38 @@ public:
         archivo.close();
     }
 
+	static void cargarEdiciones(const std::string& ruta, 
+                              Lista<Edicion>& listaEdiciones, 
+                              Multilista<std::string, std::string>& editorialAnios) {
+        std::ifstream archivo(ruta);
+        if (!archivo.is_open()) {
+            std::cout << "Error al abrir archivo de ediciones." << std::endl;
+            return;
+        }
+
+        std::string linea;
+        while (getline(archivo, linea)) {
+            Edicion e;
+            std::stringstream ss(linea);
+            std::string campo;
+
+            getline(ss, campo, ';'); e.numeroEdicion = std::atoi(limpiarNumero(campo).c_str());
+            getline(ss, e.fechaPublicacion, ';');
+            getline(ss, e.idEditorial, ';');
+            getline(ss, e.ciudadPublicacion);
+            getline(ss, e.idObra);
+
+            listaEdiciones.insertarFinal(e);
+            
+            // Construir Ã­ndice para consulta 1: editorial y aÃ±os
+            int anio = extraerAnio(e.fechaPublicacion);
+            std::string valorAnio = construirClaveAnioEdicion(anio, e.numeroEdicion);
+            editorialAnios.insertarEnSublista(e.idEditorial, valorAnio);
+        }
+
+        archivo.close();
+    }
+    
     // MÃ©todo especializado para construir Ã­ndices cruzados entre archivos
     static void construirIndicesRelacionados(
         ArbolRojiNegro<Autor>& arbolAutores,

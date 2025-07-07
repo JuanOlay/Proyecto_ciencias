@@ -150,7 +150,7 @@ private:
                     std::string id;
                     std::cout << "Ingrese ID del autor a eliminar: ";
                     std::cin >> id;
-                    gestion.getControlAutores().eliminarPorID(id);
+                    gestion.getControlAutores().eliminarPorID(id, "autores.txt");
                     std::cout << "Operacion completada.\n";
                     break;
                 }
@@ -190,7 +190,7 @@ private:
                     std::string id;
                     std::cout << "Ingrese ID de la editorial a eliminar: ";
                     std::cin >> id;
-                    gestion.getControlEditoriales().eliminarPorID(id);
+                    gestion.getControlEditoriales().eliminarPorID(id,"editoriales.txt");
                     std::cout << "Operacion completada.\n";
                     break;
                 }
@@ -230,7 +230,7 @@ private:
                     std::string nombre;
                     std::cout << "Ingrese nombre de la obra a eliminar: ";
                     getline(std::cin, nombre);
-                    gestion.getControlObras().eliminarPorNombre(nombre);
+                    gestion.getControlObras().eliminarPorNombre(nombre,"obras.txt");
                     std::cout << "Operacion completada.\n";
                     break;
                 }
@@ -269,7 +269,7 @@ private:
                 int numero;
                 std::cout << "Ingrese numero de edicion a eliminar: ";
                 std::cin >> numero;
-                gestion.getControlEdiciones().eliminarPorNumero(numero);
+                gestion.getControlEdiciones().eliminarPorNumero(numero,"ediciones.txt");
                 std::cout << "Operacion completada.\n";
                 break;
             }

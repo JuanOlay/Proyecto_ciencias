@@ -12,16 +12,18 @@ private:
 public:
     void agregar(const Autor& a) { autores.insertarFinal(a); }
 
-    bool eliminarPorID(const string& id) {
-        for (int i = 0; i < autores.getTamano(); ++i) {
-            Autor* a = autores.buscarEnPos(i);
-            if (a != NULL && a->id == id) {
-                autores.eliminar(*a);
-                return true;
-            }
-        }
-        return false;
-    }
+    bool eliminarPorID(const std::string& id, const std::string& rutaArchivo) {
+	    for (int i = 0; i < autores.getTamano(); ++i) {
+	        Autor* a = autores.buscarEnPos(i);
+	        if (a != NULL && a->id == id) {
+	            autores.eliminar(*a);
+	            return guardarEnArchivo(rutaArchivo);  // Ahora sí actualiza el archivo
+	        }
+	    }
+	    return false;
+	}
+
+
 
     Autor* buscarPorID(const string& id) {
         for (int i = 0; i < autores.getTamano(); ++i) {
@@ -49,35 +51,20 @@ public:
         autores = lista;
     }
     
-    void guardarEnArchivo(const std::string& ruta) {
+    bool guardarEnArchivo(const std::string& ruta) {
+	    std::ofstream archivo(ruta);  // Sobrescribe el archivo completamente
+	    if (!archivo.is_open()) return false;
+	
 	    for (int i = 0; i < autores.getTamano(); ++i) {
 	        const Autor& a = autores[i];
-	
-	        // Verificar si ya existe en el archivo
-	        bool existe = false;
-	        std::ifstream archivoLectura(ruta);
-	        std::string linea;
-	        while (std::getline(archivoLectura, linea)) {
-	            std::stringstream ss(linea);
-	            std::string idArchivo;
-	            std::getline(ss, idArchivo, ';');
-	            if (idArchivo == a.id) {
-	                existe = true;
-	                break;
-	            }
-	        }
-	        archivoLectura.close();
-	
-	        // Si no existe, lo agregamos en modo append
-	        if (!existe) {
-	            std::ofstream archivoEscritura(ruta, std::ios::app);
-	            archivoEscritura << a.id << ";" << a.nombre << ";" << a.apellido << ";" << a.sexo << ";"
-	                             << a.fechaNacimiento << ";" << a.ciudadNacimiento << ";" << a.paisNacimiento << ";"
-	                             << a.ciudadResidencia << ";" << a.formacionBase << ";" << a.anioInicioLiteratura << ";"
-	                             << a.anioPrimeraObra << "\n";
-	            archivoEscritura.close();
-	        }
+	        archivo << a.id << ";" << a.nombre << ";" << a.apellido << ";" << a.sexo << ";"
+	                << a.fechaNacimiento << ";" << a.ciudadNacimiento << ";" << a.paisNacimiento << ";"
+	                << a.ciudadResidencia << ";" << a.formacionBase << ";" << a.anioInicioLiteratura << ";"
+	                << a.anioPrimeraObra << "\n";
 	    }
+	
+	    archivo.close();
+	    return true;
 	}
 };
 

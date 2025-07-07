@@ -12,14 +12,17 @@ private:
     Lista<Edicion> ediciones;
 
 public:
-    void agregar(const Edicion& ed) { ediciones.insertarFinal(ed); }
+    void agregar(const Edicion& ed) {
+        ediciones.insertarFinal(ed);
+    }
 
-    bool eliminarPorNumero(int numero) {
+    // ?? Elimina de memoria Y actualiza el archivo
+    bool eliminarPorNumero(int numero, const std::string& rutaArchivo) {
         for (int i = 0; i < ediciones.getTamano(); ++i) {
             Edicion* e = ediciones.buscarEnPos(i);
             if (e != NULL && e->numeroEdicion == numero) {
                 ediciones.eliminar(*e);
-                return true;
+                return guardarEnArchivo(rutaArchivo);  // ?? Reescribe el archivo
             }
         }
         return false;
@@ -37,7 +40,7 @@ public:
         for (int i = 0; i < ediciones.getTamano(); ++i) {
             Edicion* e = ediciones.buscarEnPos(i);
             if (e != NULL) {
-                cout << "Ed. #" << e->numeroEdicion << " - " << e->fechaPublicacion << endl;
+                std::cout << "Ed. #" << e->numeroEdicion << " - " << e->fechaPublicacion << std::endl;
             }
         }
     }
@@ -48,45 +51,47 @@ public:
         ediciones = lista;
     }
 
+    // ?? Carga todas las ediciones desde el archivo
     bool cargarDesdeArchivo(const std::string& archivo) {
-    std::ifstream file(archivo);
-    if (!file.is_open()) return false;
-    
-    std::string linea;
-    while (getline(file, linea)) {
-        if (linea.empty()) continue;
-        
-        std::stringstream ss(linea);
-        std::string campo;
-        Edicion e;
-        
-        getline(ss, campo, ';'); e.numeroEdicion = std::atoi(campo.c_str());
-        getline(ss, e.fechaPublicacion, ';');
-        getline(ss, e.idEditorial, ';');
-        getline(ss, e.ciudadPublicacion);
-        
-        ediciones.insertarFinal(e);
-    }
-    
-    file.close();
-    return true;
-}
+        std::ifstream file(archivo);
+        if (!file.is_open()) return false;
 
-bool guardarEnArchivo(const std::string& archivo) {
-    std::ofstream file(archivo);
-    if (!file.is_open()) return false;
-    
-    for (int i = 0; i < ediciones.getTamano(); ++i) {
-        Edicion* e = ediciones.buscarEnPos(i);
-        if (e != NULL) {
-            file << e->numeroEdicion << ";" << e->fechaPublicacion << ";" 
-                 << e->idEditorial << ";" << e->ciudadPublicacion << "\n";
+        std::string linea;
+        while (getline(file, linea)) {
+            if (linea.empty()) continue;
+
+            std::stringstream ss(linea);
+            std::string campo;
+            Edicion e;
+
+            getline(ss, campo, ';'); e.numeroEdicion = std::atoi(campo.c_str());
+            getline(ss, e.fechaPublicacion, ';');
+            getline(ss, e.idEditorial, ';');
+            getline(ss, e.ciudadPublicacion);
+
+            ediciones.insertarFinal(e);
         }
+
+        file.close();
+        return true;
     }
-    
-    file.close();
-    return true;
-}
+
+    // ?? Versión que sobrescribe completamente el archivo con los datos actuales
+    bool guardarEnArchivo(const std::string& archivo) {
+        std::ofstream file(archivo);  // modo truncado (sobrescribe)
+        if (!file.is_open()) return false;
+
+        for (int i = 0; i < ediciones.getTamano(); ++i) {
+            Edicion* e = ediciones.buscarEnPos(i);
+            if (e != NULL) {
+                file << e->numeroEdicion << ";" << e->fechaPublicacion << ";"
+                     << e->idEditorial << ";" << e->ciudadPublicacion << "\n";
+            }
+        }
+
+        file.close();
+        return true;
+    }
 };
 
-#endif
+#endif // CONTROLEDICIONES_H
