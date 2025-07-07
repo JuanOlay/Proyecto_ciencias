@@ -1,5 +1,5 @@
-1;10-06-2001;E001;Bogota;Flores del Alma
-2;12-08-2005;E002;Medellin;Flores del Alma
-1;01-10-1996;E003;Quito;Versos Andinos
-1;30-04-2016;E002;Medellin;Tecnopoesia
-2;15-09-2018;E001;Bogota;Tecnopoesia
+1;10-06-2001;ED001;Bogota;Flores del Alma
+2;12-08-2005;ED002;Medellin;Flores del Alma
+1;01-10-1996;ED003;Quito;Versos Andinos
+1;30-04-2016;ED002;Medellin;Tecnopoesia
+2;15-09-2018;ED001;Bogota;Tecnopoesia

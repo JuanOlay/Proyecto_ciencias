@@ -1,3 +1,3 @@
-ED001;Alfaguara;Madrid;España
-ED002;Planeta;Bogotá;Colombia
+ED001;Alfaguara;Madrid;Espana
+ED002;Planeta;Bogota;Colombia
 ED003;Sudamericana;Buenos Aires;Argentina
