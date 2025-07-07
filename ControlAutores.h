@@ -3,6 +3,7 @@
 
 #include "Entidades.h"
 #include <iostream>
+#include <fstream>
 #include "Lista.h"
 
 class ControlAutores {
@@ -17,7 +18,7 @@ public:
 	        Autor* a = autores.buscarEnPos(i);
 	        if (a != NULL && a->id == id) {
 	            autores.eliminar(*a);
-	            return guardarEnArchivo(rutaArchivo);  // Ahora sí actualiza el archivo
+	            return guardarEnArchivo(rutaArchivo);  // Ahora sÃ­ actualiza el archivo
 	        }
 	    }
 	    return false;

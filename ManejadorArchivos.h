@@ -414,20 +414,9 @@ public:
                                         ArbolRojiNegro<Obra>& arbolObras,
                                         ArbolRojiNegro<Edicion>& arbolEdiciones) {
         std::cout << "Validando consistencia de datos..." << std::endl;
-        
-        // Aquí podrías implementar validaciones como:
-        // - Verificar que todos los idAutor en obras existan en autores
-        // - Verificar que todos los idEditorial en ediciones existan en editoriales
-        // - Etc.
-        
         return true; // Placeholder
     }
     static void convertirListaAutoresAArbol(Lista<Autor>& lista, ArbolRojiNegro<Autor>& arbol) {
-    Nodo<Autor>* actual = lista.getCabeza(); // ✅ usar getCabeza()
-    while (actual != nullptr) {
-        arbol.insertar(atoi(actual->dato.id.c_str()), actual->dato);
-        actual = actual->siguiente;
-    }
 }
 static void cargarEdiciones(const std::string& ruta, Lista<Edicion>& lista, Multilista<std::string, std::string>& editorialAnios) {
 	std::ifstream archivo(ruta);
@@ -443,9 +432,6 @@ static void cargarEdiciones(const std::string& ruta, Lista<Edicion>& lista, Mult
 		std::getline(ss, idEditorial, ',');
 		std::getline(ss, fechaPublicacion, ',');
 		ss >> numeroEdicion;
-
-		Edicion edicion(idObra, idEditorial, fechaPublicacion, numeroEdicion);
-		lista.insertarFinal(edicion);
 
 		std::string anio = fechaPublicacion.substr(fechaPublicacion.find_last_of("/-") + 1);
 		std::string valor = anio + "-" + idObra;
