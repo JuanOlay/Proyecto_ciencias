@@ -1,3 +1,41 @@
 Flores del Alma;soneto;A001
+Luz Interna;verso libre;A001
+Sombras del Ayer;prosa;A001
+Ecos del Silencio;haiku;A001
+Brisa Nocturna;soneto;A001
+
 Versos Andinos;haiku;A002
+Paisajes Humanos;prosa;A002
+Caminos del Sur;verso libre;A002
+Identidades Perdidas;ensayo;A002
+Espirales Sociales;soneto;A002
+
 Tecnopoesia;verso libre;A003
+Digitales y Poesía;ensayo;A003
+Máquinas Líricas;soneto;A003
+Redes del Alma;prosa;A003
+Versos Codificados;haiku;A003
+
+Ideas Inmortales;ensayo;A004
+Filosofía del Tiempo;prosa;A004
+Mente Infinita;haiku;A004
+Sombras de la Razón;verso libre;A004
+Pensamientos Eternos;soneto;A004
+
+Colores del Corazón;pintura;A005
+Lienzos del Alma;verso libre;A005
+Estética Interior;ensayo;A005
+Imágenes del Ser;prosa;A005
+Retratos del Mundo;soneto;A005
+
+Cuentos de Ciudad;prosa;A006  
+Tinta de Ayer;soneto;A006  
+Crónicas del Olvido;ensayo;A006  
+Alma de Barro;verso libre;A006  
+Letra Viva;haiku;A006  
+
+Sueños Fragmentados;verso libre;A007  
+Cicatrices del Tiempo;ensayo;A007  
+Mariposas Mentales;haiku;A007  
+Sombras de Cristal;soneto;A007  
+Paisajes Internos;prosa;A007  

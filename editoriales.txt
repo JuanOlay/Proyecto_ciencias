@@ -1,3 +1,5 @@
 ED001;Alfaguara;Madrid;Espana
 ED002;Planeta;Bogota;Colombia
 ED003;Sudamericana;Buenos Aires;Argentina
+ED004;Norma;Lima;Peru
+ED005;Anagrama;Barcelona;Espana

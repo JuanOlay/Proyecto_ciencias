@@ -1,3 +1,7 @@
 A001;Juan;Perez;M;10-05-1980;Bogota;Colombia;Medellin;literatura;2000;2001
 A002;Ana;Gomez;F;15-07-1975;Cali;Colombia;Bogota;ciencias sociales;1995;1996
 A003;Carlos;Ramirez;M;21-03-1990;Quito;Ecuador;Guayaquil;ingenierias;2015;2016
+A004;Luis;Martinez;M;11-11-1982;Lima;Peru;Arequipa;filosofia;2003;2004
+A005;Maria;Lopez;F;09-09-1988;Caracas;Venezuela;Valencia;arte;2008;2009
+A006;Pedro;Alvarez;M;03-02-1970;Bogota;Colombia;Bogota;literatura;1990;1991
+A007;Laura;Diaz;F;17-06-1995;Buenos Aires;Argentina;Rosario;psicologia;2014;2015

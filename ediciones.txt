@@ -1,5 +1,120 @@
-1;10-06-2001;ED001;Bogota;Flores del Alma
-2;12-08-2005;ED002;Medellin;Flores del Alma
-1;01-10-1996;ED003;Quito;Versos Andinos
-1;30-04-2016;ED002;Medellin;Tecnopoesia
-2;15-09-2018;ED001;Bogota;Tecnopoesia
+1;09-09-2002;ED002;Bogota;Flores del Alma
+2;22-09-2009;ED001;Medellin;Flores del Alma
+3;15-01-2018;ED001;Buenos Aires;Flores del Alma
+1;04-11-2012;ED005;Quito;Luz Interna
+2;15-04-2005;ED005;Medellin;Luz Interna
+3;10-11-2000;ED001;Medellin;Luz Interna
+1;02-03-2016;ED005;Cali;Sombras del Ayer
+2;16-10-2016;ED004;Buenos Aires;Sombras del Ayer
+3;13-12-2007;ED002;Quito;Sombras del Ayer
+1;22-11-2006;ED004;Bogota;Ecos del Silencio
+2;12-02-2016;ED003;Lima;Ecos del Silencio
+3;01-05-2017;ED005;Bogota;Ecos del Silencio
+1;04-09-2011;ED005;Lima;Brisa Nocturna
+2;28-10-1997;ED005;Medellin;Brisa Nocturna
+3;03-10-2013;ED005;Medellin;Brisa Nocturna
+1;11-11-2015;ED001;Medellin;Versos Andinos
+2;11-07-2006;ED002;Buenos Aires;Versos Andinos
+3;27-11-1998;ED005;Buenos Aires;Versos Andinos
+1;01-03-2017;ED004;Bogota;Paisajes Humanos
+2;10-11-2014;ED004;Cali;Paisajes Humanos
+3;13-08-2017;ED003;Lima;Paisajes Humanos
+1;20-11-2008;ED002;Lima;Caminos del Sur
+2;30-10-1997;ED002;Buenos Aires;Caminos del Sur
+3;02-12-2004;ED004;Buenos Aires;Caminos del Sur
+1;18-06-2004;ED004;Lima;Identidades Perdidas
+2;01-08-2017;ED005;Lima;Identidades Perdidas
+3;17-12-1998;ED003;Quito;Identidades Perdidas
+1;04-04-2013;ED002;Lima;Espirales Sociales
+2;08-11-2000;ED005;Medellin;Espirales Sociales
+3;19-06-2016;ED004;Buenos Aires;Espirales Sociales
+1;18-10-2014;ED003;Buenos Aires;Tecnopoesia
+2;02-01-2015;ED003;Buenos Aires;Tecnopoesia
+3;06-04-2008;ED004;Cali;Tecnopoesia
+1;11-05-2001;ED001;Medellin;Digitales y Poesía
+2;07-08-2014;ED004;Cali;Digitales y Poesía
+3;09-02-2015;ED004;Bogota;Digitales y Poesía
+1;04-09-2009;ED004;Bogota;Máquinas Líricas
+2;07-11-2013;ED004;Lima;Máquinas Líricas
+3;07-04-2005;ED005;Cali;Máquinas Líricas
+1;20-05-2013;ED003;Quito;Redes del Alma
+2;12-07-2006;ED002;Lima;Redes del Alma
+3;16-11-1999;ED005;Medellin;Redes del Alma
+1;30-06-1998;ED003;Medellin;Versos Codificados
+2;09-05-2000;ED002;Lima;Versos Codificados
+3;18-05-2014;ED001;Bogota;Versos Codificados
+1;06-02-2017;ED004;Quito;Colores del Corazón
+2;08-09-1995;ED003;Buenos Aires;Colores del Corazón
+3;15-04-1997;ED001;Medellin;Colores del Corazón
+1;03-11-1999;ED002;Bogota;Lienzos del Alma
+2;23-06-2004;ED005;Quito;Lienzos del Alma
+3;09-03-2012;ED001;Cali;Lienzos del Alma
+1;26-02-1999;ED001;Quito;Estética Interior
+2;14-12-2012;ED003;Medellin;Estética Interior
+3;02-03-2011;ED001;Medellin;Estética Interior
+1;11-08-1998;ED004;Buenos Aires;Imágenes del Ser
+2;20-10-2016;ED003;Medellin;Imágenes del Ser
+3;22-04-2010;ED005;Lima;Imágenes del Ser
+1;22-11-2014;ED002;Buenos Aires;Retratos del Mundo
+2;18-10-2002;ED001;Bogota;Retratos del Mundo
+3;20-09-2007;ED005;Lima;Retratos del Mundo
+1;26-02-1997;ED001;Buenos Aires;Cuentos de Ciudad
+2;12-08-2009;ED005;Cali;Cuentos de Ciudad
+3;22-01-1996;ED005;Medellin;Cuentos de Ciudad
+1;30-10-1997;ED001;Buenos Aires;Tinta de Ayer
+2;20-07-2017;ED002;Medellin;Tinta de Ayer
+3;17-08-1995;ED001;Medellin;Tinta de Ayer
+1;28-12-1995;ED001;Quito;Crónicas del Olvido
+2;12-02-2008;ED004;Bogota;Crónicas del Olvido
+3;26-01-2008;ED001;Bogota;Crónicas del Olvido
+1;17-10-2019;ED002;Buenos Aires;Alma de Barro
+2;17-02-2009;ED004;Lima;Alma de Barro
+3;30-07-2014;ED005;Buenos Aires;Alma de Barro
+1;05-04-1999;ED002;Lima;Letra Viva
+2;13-03-2010;ED004;Quito;Letra Viva
+3;08-10-2000;ED001;Quito;Letra Viva
+1;17-12-2016;ED001;Lima;Sueños Fragmentados
+2;03-12-2004;ED004;Medellin;Sueños Fragmentados
+3;16-03-2007;ED003;Lima;Sueños Fragmentados
+1;12-09-2012;ED002;Lima;Cicatrices del Tiempo
+2;21-05-2014;ED005;Lima;Cicatrices del Tiempo
+3;04-03-2011;ED003;Bogota;Cicatrices del Tiempo
+1;07-01-2011;ED004;Buenos Aires;Mariposas Mentales
+2;13-03-2001;ED001;Lima;Mariposas Mentales
+3;22-10-2007;ED005;Lima;Mariposas Mentales
+1;24-01-2013;ED001;Bogota;Sombras de Cristal
+2;12-10-1997;ED005;Quito;Sombras de Cristal
+3;03-04-1998;ED001;Quito;Sombras de Cristal
+1;30-08-1998;ED004;Medellin;Paisajes Internos
+2;06-10-2005;ED005;Buenos Aires;Paisajes Internos
+3;14-11-2011;ED005;Cali;Paisajes Internos
+1;08-03-2003;ED005;Lima;Ideas Inmortales
+2;22-07-2020;ED002;Quito;Ideas Inmortales
+3;26-07-2002;ED001;Bogota;Ideas Inmortales
+1;30-03-2012;ED003;Quito;Filosofía del Tiempo
+2;22-07-2012;ED005;Medellin;Filosofía del Tiempo
+3;12-01-2003;ED001;Lima;Filosofía del Tiempo
+1;16-10-2007;ED005;Quito;Mente Infinita
+2;16-01-2020;ED003;Bogota;Mente Infinita
+3;29-06-2013;ED001;Lima;Mente Infinita
+1;08-11-2006;ED003;Lima;Sombras de la Razón
+2;21-07-2000;ED001;Bogota;Sombras de la Razón
+3;07-12-1995;ED005;Cali;Sombras de la Razón
+1;09-09-2015;ED003;Quito;Pensamientos Eternos
+2;04-09-1998;ED005;Lima;Pensamientos Eternos
+3;25-03-2004;ED004;Quito;Pensamientos Eternos
+1;06-02-2017;ED004;Quito;Colores del Corazón
+2;08-09-1995;ED003;Buenos Aires;Colores del Corazón
+3;15-04-1997;ED001;Medellin;Colores del Corazón
+1;03-11-1999;ED002;Bogota;Lienzos del Alma
+2;23-06-2004;ED005;Quito;Lienzos del Alma
+3;09-03-2012;ED001;Cali;Lienzos del Alma
+1;26-02-1999;ED001;Quito;Estética Interior
+2;14-12-2012;ED003;Medellin;Estética Interior
+3;02-03-2011;ED001;Medellin;Estética Interior
+1;11-08-1998;ED004;Buenos Aires;Imágenes del Ser
+2;20-10-2016;ED003;Medellin;Imágenes del Ser
+3;22-04-2010;ED005;Lima;Imágenes del Ser
+1;22-11-2014;ED002;Buenos Aires;Retratos del Mundo
+2;18-10-2002;ED001;Bogota;Retratos del Mundo
+3;20-09-2007;ED005;Lima;Retratos del Mundo
