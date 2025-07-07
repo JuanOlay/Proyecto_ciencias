@@ -1,773 +1,755 @@
 #ifndef GESTIONBIBLIOTECA_H
 #define GESTIONBIBLIOTECA_H
 
-#include "ArbolRojiNegro.h"
-#include "Multilista.h"
-#include "Entidades.h"
-#include "ManejadorArchivos.h"
-#include "ControlAutores.h"
-#include "ControlEditoriales.h"
-#include "ControlObras.h"
-#include "ControlEdiciones.h"
-#include <sstream>
-#include <map>
-#include <vector>
+#include <iostream>
 #include <string>
+#include <vector>
+#include <map>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <set>
+#include <iomanip>
+#include "Entidades.h"
 
 class GestionBiblioteca {
-	private:
-		ControlAutores controlAutores;
-		ControlEditoriales controlEditoriales;
-		ControlObras controlObras;
-
-		// Árboles principales para búsquedas por ID (O(log n))
-		ArbolRojiNegro<Autor> arbolAutores;
-		ArbolRojiNegro<Editorial> arbolEditoriales;
-		ArbolRojiNegro<Obra> arbolObras;
-		ArbolRojiNegro<Edicion> arbolEdiciones;
-
-		// === MULTILISTAS OPTIMIZADAS POR CONSULTA ===
-
-		// Para consulta 1: Número total de obras de un autor, clasificadas por editorial y año
-		Multilista<std::string, Obra> autorObras;                    // Clave: idAutor
-		Multilista<std::string, std::string> editorialAnios;         // Clave: idEditorial, Valor: "año-nombreObra"
-
-		// Para consulta 2: Obras de un autor por tipo de poesía
-		Multilista<std::string, std::string> autorTipoPoesia;        // Clave: idAutor, Valor: "tipoPoesia-nombreObra-fechaPublicacion-numEdicion"
-
-		// Para consulta 3: Autores publicados por editorial, clasificados por ciudad y año inicio
-		Multilista<std::string, std::string> editorialAutores;      // Clave: idEditorial, Valor: "ciudadResidencia-añoInicio-idAutor"
-
-		// Para consulta 4: Editoriales con número de poetas > N
-		Multilista<std::string, std::string> editorialPoetas;       // Clave: idEditorial, Valor: idAutor (para contar únicos)
-
-		// Para consulta 5: Autores por editorial, clasificados por ciudad y país de nacimiento
-		Multilista<std::string, std::string> editorialAutoresNacimiento; // Clave: idEditorial, Valor: "paisNacimiento-ciudadNacimiento-idAutor"
-
-		// Para consulta 6: Autores por formación y edad
-		Multilista<std::string, std::string> formacionAutores;      // Clave: formacionBase, Valor: "edad-añoPrimeraObra-idAutor"
-
-		// Para consulta 7: Autores por tipo de poesía y editorial
-		Multilista<std::string, std::string> tipoPoesiaEditorial;   // Clave: "tipoPoesia-idEditorial", Valor: idAutor
-
-		// === MÉTODOS AUXILIARES PRIVADOS ===
-
-		ControlEdiciones controlEdiciones;
-		// Calcular edad basado en fecha de nacimiento
-		int calcularEdad(const std::string& fechaNacimiento) const {
-			if (fechaNacimiento.empty()) return 0;
-
-			// Asumiendo formato DD/MM/YYYY o DD-MM-YYYY
-			std::string anioStr;
-			size_t pos = fechaNacimiento.find_last_of("/-");
-			if (pos != std::string::npos && pos + 1 < fechaNacimiento.length()) {
-				anioStr = fechaNacimiento.substr(pos + 1);
-			}
-
-			if (anioStr.empty()) return 0;
-
-			int anioNacimiento = std::atoi(anioStr.c_str());
-			return (anioNacimiento > 0) ? (2024 - anioNacimiento) : 0;
-		}
-
-		// Extraer año de fecha de publicación
-		int extraerAnio(const std::string& fecha) const {
-			if (fecha.empty()) return 0;
-
-			std::string anioStr;
-			size_t pos = fecha.find_last_of("/-");
-			if (pos != std::string::npos && pos + 1 < fecha.length()) {
-				anioStr = fecha.substr(pos + 1);
-			}
-
-			return std::atoi(anioStr.c_str());
-		}
-
-		// Buscar todas las ediciones de una obra específica
-		void buscarEdicionesObra(
-		    std::string& fechaPublicacion,
-		    std::string& idEditorial,
-		    int& numeroEdicion,
-		    const std::string& idObra) const {
-			// Implementar búsqueda en arbolEdiciones
-			// Esta es una implementación simplificada
-			fechaPublicacion = "";
-			idEditorial = "";
-			numeroEdicion = 0;
-		}
-		// Método auxiliar para obtener información completa de una obra
-		bool obtenerInfoObra(const std::string& nombreObra, std::string& idAutor,
-		                     std::string& tipoPoesia, std::string& fechaPublicacion,
-		                     std::string& idEditorial, int& numeroEdicion) const {
-
-			// Buscar la obra en el árbol
-			std::queue<Obra> obras = arbolObras.recorridoInOrden();
-			while (!obras.empty()) {
-				Obra obra = obras.front();
-				obras.pop();
-
-				if (obra.nombre == nombreObra) {
-					idAutor = obra.idAutor;
-					tipoPoesia = obra.tipoPoesia;
-
-					// Buscar la edición correspondiente usando obra.nombre
-					std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-					while (!ediciones.empty()) {
-						Edicion edicion = ediciones.front();
-						ediciones.pop();
-
-						if (edicion.idObra == obra.nombre) {  // CORREGIDO: usar obra.nombre
-							fechaPublicacion = edicion.fechaPublicacion;
-							idEditorial = edicion.idEditorial;
-							numeroEdicion = edicion.numeroEdicion;
-							return true;
-						}
-					}
-					return false;
-				}
-			}
-			return false;
-		}
-
-// Método auxiliar para obtener información del autor
-		bool obtenerInfoAutor(const std::string& idAutor, std::string& nombre,
-		                      std::string& ciudadResidencia, std::string& paisNacimiento,
-		                      std::string& ciudadNacimiento, std::string& fechaNacimiento,
-		                      std::string& formacionBase, int& anioInicio) const {
-
-			std::queue<Autor> autores = arbolAutores.recorridoInOrden();
-			while (!autores.empty()) {
-				Autor autor = autores.front();
-				autores.pop();
-
-				if (autor.id == idAutor) {
-					nombre = autor.nombre;
-					ciudadResidencia = autor.ciudadResidencia;
-					paisNacimiento = autor.paisNacimiento;
-					ciudadNacimiento = autor.ciudadNacimiento;
-					fechaNacimiento = autor.fechaNacimiento;
-					formacionBase = autor.formacionBase;
-					anioInicio = autor.anioInicioLiteratura;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		// Verificar si un autor ya está asociado a una editorial
-		bool autorYaEnEditorial(const std::string& idEditorial, const std::string& idAutor) const {
-			return editorialPoetas.buscarEnSublista(idEditorial, idAutor);
-		}
-
-	public:
-		// Constructor
-		GestionBiblioteca() {}
-
-		// Destructor
-		~GestionBiblioteca() {}
-
-		// Getters para controladores
-		ControlAutores& getControlAutores() {
-			return controlAutores;
-		}
-		ControlEditoriales& getControlEditoriales() {
-			return controlEditoriales;
-		}
-		ControlObras& getControlObras() {
-			return controlObras;
-		}
-
-		ControlEdiciones& getControlEdiciones() {
-			return controlEdiciones;
-		}
-
-		// === MÉTODOS DE CARGA OPTIMIZADOS ===
-
-		void cargarAutoresDesdeArchivo(const std::string& ruta) {
-			ManejadorArchivos::cargarAutores(ruta, arbolAutores, formacionAutores);
-			Lista<Autor> listaAutores;
-			ManejadorArchivos::cargarAutores(ruta, listaAutores, formacionAutores);
-			controlAutores.setAutores(listaAutores);
-			std::cout << "Autores cargados. Construyendo indices optimizados..." << std::endl;
-		}
-
-		void cargarEditorialesDesdeArchivo(const std::string& ruta) {
-			ManejadorArchivos::cargarEditoriales(ruta, arbolEditoriales);
-			Lista<Editorial> listaEditoriales;
-			ManejadorArchivos::cargarEditoriales(ruta, listaEditoriales);
-			controlEditoriales.setEditoriales(listaEditoriales);
-			std::cout << "Editoriales cargadas." << std::endl;
-		}
-
-		void cargarObrasDesdeArchivo(const std::string& ruta) {
-			ManejadorArchivos::cargarObras(ruta, arbolObras, autorObras);
-			Lista<Obra> listaObras;
-			ManejadorArchivos::cargarObras(ruta, listaObras, autorObras);
-			controlObras.setObras(listaObras);
-			std::cout << "Obras cargadas. Construyendo indices optimizados..." << std::endl;
-		}
-
-		void cargarEdicionesDesdeArchivo(const std::string& ruta) {
-			ManejadorArchivos::cargarEdiciones(ruta, arbolEdiciones, editorialAnios);
-			Lista<Edicion> listaEdiciones;
-			ManejadorArchivos::cargarEdiciones(ruta, listaEdiciones, editorialAnios);
-			controlEdiciones.setEdiciones(listaEdiciones);
-			std::cout << "Ediciones cargadas." << std::endl;
-		}
-
-		// === CONSTRUCCIÓN DE ÍNDICES OPTIMIZADOS ===
-
-		void construirIndicesOptimizados() {
-			std::cout << "Construyendo indices optimizados para consultas..." << std::endl;
-
-			construirIndiceConsulta1();
-			construirIndiceConsulta2();
-			construirIndiceConsulta3();
-			construirIndiceConsulta4();
-			construirIndiceConsulta5();
-			construirIndiceConsulta6();
-			construirIndiceConsulta7();
-
-			std::cout << "Indices construidos exitosamente." << std::endl;
-		}
-		void construirIndiceConsulta1() {
-			std::cout << "Construyendo indice para consulta 1..." << std::endl;
-
-			// Recorrer todas las obras y agrupar por autor
-			std::queue<Obra> obras = arbolObras.recorridoInOrden();
-			while (!obras.empty()) {
-				Obra obra = obras.front();
-				obras.pop();
-
-				std::string idAutor = obra.idAutor;
-
-				// Crear nodo principal si no existe
-				if (!autorObras.existe(idAutor)) {
-					autorObras.insertar(idAutor);
-				}
-
-				// Insertar la obra completa en la sublista
-				autorObras.insertarEnSublista(idAutor, obra);
-			}
-		}
-
-		void construirIndiceConsulta2() {
-			std::cout << "Construyendo indice para consulta 2..." << std::endl;
-
-			// Recorrer todas las obras
-			std::queue<Obra> obras = arbolObras.recorridoInOrden();
-			while (!obras.empty()) {
-				Obra obra = obras.front();
-				obras.pop();
-
-				std::string idAutor = obra.idAutor;
-				std::string tipoPoesia = obra.tipoPoesia;
-				std::string nombreObra = obra.nombre;
-
-				// Buscar información de la edición usando obra.nombre
-				std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-				while (!ediciones.empty()) {
-					Edicion edicion = ediciones.front();
-					ediciones.pop();
-
-					if (edicion.idObra == obra.nombre) {  // CORREGIDO: usar obra.nombre
-						std::string fechaPublicacion = edicion.fechaPublicacion;
-						int numeroEdicion = edicion.numeroEdicion;
-
-						std::string valorSublista = tipoPoesia + "-" + nombreObra + "-" +
-						                            fechaPublicacion + "-" + std::to_string(numeroEdicion);
-
-						// Crear nodo principal si no existe
-						if (!autorTipoPoesia.existe(idAutor)) {
-							autorTipoPoesia.insertar(idAutor);
-						}
-
-						autorTipoPoesia.insertarEnSublista(idAutor, valorSublista);
-						break;  // Solo necesitamos una edición por obra
-					}
-				}
-			}
-		}
-
-		void construirIndiceConsulta3() {
-			std::cout << "Construyendo indice para consulta 3..." << std::endl;
-
-			// Recorrer todas las ediciones
-			std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-			while (!ediciones.empty()) {
-				Edicion edicion = ediciones.front();
-				ediciones.pop();
-
-				std::string idEditorial = edicion.idEditorial;
-				std::string idObra = edicion.idObra;
-
-				// Buscar el autor de esta obra usando idObra
-				std::queue<Obra> obras = arbolObras.recorridoInOrden();
-				while (!obras.empty()) {
-					Obra obra = obras.front();
-					obras.pop();
-
-					if (obra.nombre == idObra) {  // CORREGIDO: usar obra.nombre
-						std::string idAutor = obra.idAutor;
-
-						// Obtener información del autor
-						std::string nombre, ciudadResidencia, paisNacimiento, ciudadNacimiento,
-						    fechaNacimiento, formacionBase;
-						int anioInicio;
-
-						if (obtenerInfoAutor(idAutor, nombre, ciudadResidencia, paisNacimiento,
-						                     ciudadNacimiento, fechaNacimiento, formacionBase, anioInicio)) {
-
-							std::string valorSublista = ciudadResidencia + "-" +
-							                            std::to_string(anioInicio) + "-" + idAutor;
-
-							// Crear nodo principal si no existe
-							if (!editorialAutores.existe(idEditorial)) {
-								editorialAutores.insertar(idEditorial);
-							}
-
-							// Verificar si ya existe para evitar duplicados
-							if (!editorialAutores.buscarEnSublista(idEditorial, valorSublista)) {
-								editorialAutores.insertarEnSublista(idEditorial, valorSublista);
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		void construirIndiceConsulta4() {
-			std::cout << "Construyendo indice para consulta 4..." << std::endl;
-
-			// Recorrer todas las ediciones
-			std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-			while (!ediciones.empty()) {
-				Edicion edicion = ediciones.front();
-				ediciones.pop();
-
-				std::string idEditorial = edicion.idEditorial;
-				std::string idObra = edicion.idObra;
-
-				// Buscar el autor de esta obra
-				std::queue<Obra> obras = arbolObras.recorridoInOrden();
-				while (!obras.empty()) {
-					Obra obra = obras.front();
-					obras.pop();
-
-					if (obra.nombre == idObra) {  // CORREGIDO: usar obra.nombre
-						std::string idAutor = obra.idAutor;
-
-						// Crear nodo principal si no existe
-						if (!editorialPoetas.existe(idEditorial)) {
-							editorialPoetas.insertar(idEditorial);
-						}
-
-						// Agregar autor si no existe ya (evitar duplicados)
-						if (!editorialPoetas.buscarEnSublista(idEditorial, idAutor)) {
-							editorialPoetas.insertarEnSublista(idEditorial, idAutor);
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		void construirIndiceConsulta5() {
-			std::cout << "Construyendo indice para consulta 5..." << std::endl;
-
-			std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-			while (!ediciones.empty()) {
-				Edicion edicion = ediciones.front();
-				ediciones.pop();
-
-				std::string idEditorial = edicion.idEditorial;
-				std::string idObra = edicion.idObra;
-
-				// Buscar el autor de esta obra
-				std::queue<Obra> obras = arbolObras.recorridoInOrden();
-				while (!obras.empty()) {
-					Obra obra = obras.front();
-					obras.pop();
-
-					if (obra.nombre == idObra) {  // CORREGIDO: usar obra.nombre
-						std::string idAutor = obra.idAutor;
-
-						// Obtener información del autor
-						std::string nombre, ciudadResidencia, paisNacimiento, ciudadNacimiento,
-						    fechaNacimiento, formacionBase;
-						int anioInicio;
-
-						if (obtenerInfoAutor(idAutor, nombre, ciudadResidencia, paisNacimiento,
-						                     ciudadNacimiento, fechaNacimiento, formacionBase, anioInicio)) {
-
-							std::string valorSublista = paisNacimiento + "-" + ciudadNacimiento + "-" + idAutor;
-
-							// Crear nodo principal si no existe
-							if (!editorialAutoresNacimiento.existe(idEditorial)) {
-								editorialAutoresNacimiento.insertar(idEditorial);
-							}
-
-							// Verificar si ya existe para evitar duplicados
-							if (!editorialAutoresNacimiento.buscarEnSublista(idEditorial, valorSublista)) {
-								editorialAutoresNacimiento.insertarEnSublista(idEditorial, valorSublista);
-							}
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		void construirIndiceConsulta6() {
-			std::cout << "Construyendo indice para consulta 6..." << std::endl;
-
-			// El índice formacionAutores ya se construye en ManejadorArchivos
-			// Aquí agregamos información adicional de edad
-			std::queue<Autor> autores = arbolAutores.recorridoInOrden();
-			while (!autores.empty()) {
-				Autor autor = autores.front();
-				autores.pop();
-
-				std::string formacion = autor.formacionBase;
-				std::string idAutor = autor.id;
-				int edad = calcularEdad(autor.fechaNacimiento);
-				int anioInicio = autor.anioInicioLiteratura;
-
-				std::string valorSublista = std::to_string(edad) + "-" +
-				                            std::to_string(anioInicio) + "-" + idAutor;
-
-				// Crear nodo principal si no existe
-				if (!formacionAutores.existe(formacion)) {
-					formacionAutores.insertar(formacion);
-				}
-
-				formacionAutores.insertarEnSublista(formacion, valorSublista);
-			}
-		}
-
-		void construirIndiceConsulta7() {
-			std::cout << "Construyendo indice para consulta 7..." << std::endl;
-
-			// Recorrer todas las obras
-			std::queue<Obra> obras = arbolObras.recorridoInOrden();
-			while (!obras.empty()) {
-				Obra obra = obras.front();
-				obras.pop();
-
-				std::string idAutor = obra.idAutor;
-				std::string tipoPoesia = obra.tipoPoesia;
-				std::string idObra = obra.nombre;  // CORREGIDO: usar obra.nombre
-
-				// Buscar la editorial de esta obra
-				std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-				while (!ediciones.empty()) {
-					Edicion edicion = ediciones.front();
-					ediciones.pop();
-
-					if (edicion.idObra == idObra) {  // Ahora idObra está correctamente definido
-						std::string idEditorial = edicion.idEditorial;
-						std::string clave = tipoPoesia + "-" + idEditorial;
-
-						// Crear nodo principal si no existe
-						if (!tipoPoesiaEditorial.existe(clave)) {
-							tipoPoesiaEditorial.insertar(clave);
-						}
-
-						// Agregar autor si no existe ya (evitar duplicados)
-						if (!tipoPoesiaEditorial.buscarEnSublista(clave, idAutor)) {
-							tipoPoesiaEditorial.insertarEnSublista(clave, idAutor);
-						}
-						break;
-					}
-				}
-			}
-		}
-
-		// === MÉTODOS DE CONSULTA OPTIMIZADOS ===
-
-		// Consulta 1: Número total de obras de un autor, clasificadas por editorial y año
-		void consultaObrasAutorPorEditorialAnio(const std::string& idAutor) const {
-			std::cout << "\n=== CONSULTA 1: Obras del autor " << idAutor << " por editorial y anio ===" << std::endl;
-
-			if (!autorObras.existe(idAutor)) {
-				std::cout << "No se encontraron obras para el autor " << idAutor << std::endl;
-				return;
-			}
-
-			// Obtener información del autor
-			std::string nombreAutor, ciudadResidencia, paisNacimiento, ciudadNacimiento,
-			    fechaNacimiento, formacionBase;
-			int anioInicio;
-
-			if (obtenerInfoAutor(idAutor, nombreAutor, ciudadResidencia, paisNacimiento,
-			                     ciudadNacimiento, fechaNacimiento, formacionBase, anioInicio)) {
-				std::cout << "Autor: " << nombreAutor << " (ID: " << idAutor << ")" << std::endl;
-			}
-
-			// Contar obras y organizarlas por editorial y año
-			std::map<std::string, std::map<int, std::vector<std::string>>> editorialAnioObras;
-			int totalObras = 0;
-
-			// Recorrer todas las obras del autor
-			std::queue<Obra> obras = arbolObras.recorridoInOrden();
-			while (!obras.empty()) {
-				Obra obra = obras.front();
-				obras.pop();
-
-				if (obra.idAutor == idAutor) {
-					totalObras++;
-
-					// Buscar edición correspondiente
-					std::queue<Edicion> ediciones = arbolEdiciones.recorridoInOrden();
-					while (!ediciones.empty()) {
-						Edicion edicion = ediciones.front();
-						ediciones.pop();
-
-						if (edicion.idObra == obra.nombre) {
-							std::string idEditorial = edicion.idEditorial;
-							int anio = extraerAnio(edicion.fechaPublicacion);
-
-							editorialAnioObras[idEditorial][anio].push_back(obra.nombre);
-							break;
-						}
-					}
-				}
-			}
-
-			std::cout << "\nTotal de obras: " << totalObras << std::endl;
-			std::cout << "\nObras clasificadas por editorial y año:" << std::endl;
-			std::cout << "----------------------------------------" << std::endl;
-
-			// Mostrar organizadamente
-			for (const auto& editorial : editorialAnioObras) {
-				std::cout << "\nEditorial: " << editorial.first << std::endl;
-				for (const auto& anio : editorial.second) {
-					std::cout << "  Año " << anio.first << ":" << std::endl;
-					for (const auto& obra : anio.second) {
-						std::cout << "    - " << obra << std::endl;
-					}
-				}
-			}
-		}
-
-
-		// Consulta 2: Obras de un autor por tipo de poesía
-		void consultaObrasAutorPorTipoPoesia(const std::string& idAutor) const {
-			std::cout << "\n=== CONSULTA 2: Obras del autor " << idAutor << " por tipo de poesia ===" << std::endl;
-
-			if (!autorTipoPoesia.existe(idAutor)) {
-				std::cout << "No se encontraron obras para el autor " << idAutor << std::endl;
-				return;
-			}
-
-			autorTipoPoesia.mostrarSublista(idAutor);
-		}
-
-		// Consulta 3: Autores publicados por editorial
-		void consultaAutoresPorEditorial(const std::string& idEditorial) const {
-			std::cout << "\n=== CONSULTA 3: Autores publicados por editorial " << idEditorial << " ===" << std::endl;
-
-			if (!editorialAutores.existe(idEditorial)) {
-				std::cout << "No se encontraron autores para la editorial " << idEditorial << std::endl;
-				return;
-			}
-
-			editorialAutores.mostrarSublista(idEditorial);
-		}
-
-		void consultaEditorialesConNPoetas(int numeroMinimo) const {
-			std::cout << "\n=== CONSULTA 4: Editoriales con mas de " << numeroMinimo << " poetas ===" << std::endl;
-
-			if (editorialPoetas.estaVacia()) {
-				std::cout << "No hay datos de poetas por editorial." << std::endl;
-				return;
-			}
-
-			std::cout << "Editoriales que cumplen el criterio:" << std::endl;
-			std::cout << "-----------------------------------" << std::endl;
-
-			// Recorrer todas las editoriales y contar poetas
-			std::queue<Editorial> editoriales = arbolEditoriales.recorridoInOrden();
-			bool encontrado = false;
-
-			while (!editoriales.empty()) {
-				Editorial editorial = editoriales.front();
-				editoriales.pop();
-
-				std::string idEditorial = editorial.id;
-				int cantidadPoetas = editorialPoetas.getTamanoSublista(idEditorial);
-
-				if (cantidadPoetas > numeroMinimo) {
-					std::cout << "Editorial: " << editorial.nombre
-					          << " (ID: " << idEditorial << ")" << std::endl;
-					std::cout << "Cantidad de poetas: " << cantidadPoetas << std::endl;
-					std::cout << "Poetas: ";
-					editorialPoetas.mostrarSublista(idEditorial);
-					std::cout << std::endl;
-					encontrado = true;
-				}
-			}
-
-			if (!encontrado) {
-				std::cout << "No se encontraron editoriales con más de " << numeroMinimo << " poetas." << std::endl;
-			}
-		}
-
-		// Consulta 5: Autores por editorial, clasificados por lugar de nacimiento
-		void consultaAutoresPorEditorialNacimiento(const std::string& idEditorial) const {
-			std::cout << "\n=== CONSULTA 5: Autores de editorial " << idEditorial << " por lugar de nacimiento ===" << std::endl;
-
-			if (!editorialAutoresNacimiento.existe(idEditorial)) {
-				std::cout << "No se encontraron datos para la editorial " << idEditorial << std::endl;
-				return;
-			}
-
-			editorialAutoresNacimiento.mostrarSublista(idEditorial);
-		}
-
-		void consultaAutoresPorFormacionYEdad(const std::string& formacion, int edadMin, int edadMax) const {
-			std::cout << "\n=== CONSULTA 6: Autores con formacion " << formacion
-			          << " entre " << edadMin << " y " << edadMax << " años ===" << std::endl;
-
-			if (!formacionAutores.existe(formacion)) {
-				std::cout << "No se encontraron autores con formación " << formacion << std::endl;
-				return;
-			}
-
-			std::cout << "Autores que cumplen el criterio:" << std::endl;
-			std::cout << "-------------------------------" << std::endl;
-
-			bool encontrado = false;
-
-			// Recorrer todos los autores con esa formación
-			std::queue<Autor> autores = arbolAutores.recorridoInOrden();
-			while (!autores.empty()) {
-				Autor autor = autores.front();
-				autores.pop();
-
-				if (autor.formacionBase == formacion) {
-					int edad = calcularEdad(autor.fechaNacimiento);
-
-					if (edad >= edadMin && edad <= edadMax) {
-						std::cout << "- " << autor.nombre << " (ID: " << autor.id
-						          << ", Edad: " << edad << " años)" << std::endl;
-						std::cout << "  Año inicio literatura: " << autor.anioInicioLiteratura << std::endl;
-						encontrado = true;
-					}
-				}
-			}
-
-			if (!encontrado) {
-				std::cout << "No se encontraron autores con formación " << formacion
-				          << " entre " << edadMin << " y " << edadMax << " años." << std::endl;
-			}
-		}
-
-		// Consulta 7: Autores por tipo de poesía y editorial
-		void consultaAutoresPorTipoYEditorial(const std::string& tipoPoesia, const std::string& idEditorial) const {
-			std::cout << "\n=== CONSULTA 7: Autores de " << tipoPoesia << " en editorial " << idEditorial << " ===" << std::endl;
-
-			std::string clave = tipoPoesia + "-" + idEditorial;
-			if (!tipoPoesiaEditorial.existe(clave)) {
-				std::cout << "No se encontraron autores para " << tipoPoesia << " en editorial " << idEditorial << std::endl;
-				return;
-			}
-
-			tipoPoesiaEditorial.mostrarSublista(clave);
-		}
-
-		// Forzar reordenamiento de todas las multilistas
-		void optimizarEstructuras() {
-			std::cout << "Optimizando estructuras de datos..." << std::endl;
-
-			autorObras.forzarOrdenamiento();
-			autorTipoPoesia.forzarOrdenamiento();
-			editorialAutores.forzarOrdenamiento();
-			editorialPoetas.forzarOrdenamiento();
-			editorialAutoresNacimiento.forzarOrdenamiento();
-			formacionAutores.forzarOrdenamiento();
-			tipoPoesiaEditorial.forzarOrdenamiento();
-
-			std::cout << "Estructuras optimizadas." << std::endl;
-		}
-
-		// Validar integridad de todas las estructuras
-		bool validarIntegridadSistema() const {
-			std::cout << "Validando integridad del sistema..." << std::endl;
-
-			bool integridad = true;
-			integridad &= autorObras.validarIntegridad();
-			integridad &= autorTipoPoesia.validarIntegridad();
-			integridad &= editorialAutores.validarIntegridad();
-			integridad &= editorialPoetas.validarIntegridad();
-			integridad &= editorialAutoresNacimiento.validarIntegridad();
-			integridad &= formacionAutores.validarIntegridad();
-			integridad &= tipoPoesiaEditorial.validarIntegridad();
-
-			if (integridad) {
-				std::cout << "Sistema integro." << std::endl;
-			} else {
-				std::cout << "ADVERTENCIA: Se detectaron problemas de integridad." << std::endl;
-			}
-
-			return integridad;
-		}
-
-		// === MÉTODOS DE PERSISTENCIA ===
-
-		// Inicializar sistema completo
-		void inicializarSistema() {
-			std::cout << "Inicializando sistema de gestion de biblioteca..." << std::endl;
-
-			cargarEditorialesDesdeArchivo("editoriales.txt");
-			cargarAutoresDesdeArchivo("autores.txt");
-			cargarObrasDesdeArchivo("obras.txt");
-			cargarEdicionesDesdeArchivo("ediciones.txt");
-
-			construirIndicesOptimizados();
-			optimizarEstructuras();
-		}
-
-		// Guardar todos los cambios
-		void guardarTodosSistema() {
-			std::cout << "Guardando todos los datos del sistema..." << std::endl;
-
-			controlAutores.guardarEnArchivo("autores.txt");
-			controlEditoriales.guardarEnArchivo("editoriales.txt");
-			controlObras.guardarEnArchivo("obras.txt");
-			controlEdiciones.guardarEnArchivo("ediciones.txt");
-			// Agregar guardado de ediciones si tienes ControlEdiciones
-
-			std::cout << "Datos guardados exitosamente." << std::endl;
-		}
-
-		// === ACCESO A ESTRUCTURAS (para casos especiales) ===
-
-		ArbolRojiNegro<Autor>& getArbolAutores() {
-			return arbolAutores;
-		}
-		ArbolRojiNegro<Editorial>& getArbolEditoriales() {
-			return arbolEditoriales;
-		}
-		ArbolRojiNegro<Obra>& getArbolObras() {
-			return arbolObras;
-		}
-		ArbolRojiNegro<Edicion>& getArbolEdiciones() {
-			return arbolEdiciones;
-		}
-
-		// Acceso a multilistas específicas
-		Multilista<std::string, Obra>& getAutorObras() {
-			return autorObras;
-		}
-		Multilista<std::string, std::string>& getEditorialAutores() {
-			return editorialAutores;
-		}
-		Multilista<std::string, std::string>& getFormacionAutores() {
-			return formacionAutores;
-		}
-		// Agregar más getters según necesites...
+private:
+    std::vector<Autor> autores;
+    std::vector<Editorial> editoriales;
+    std::vector<Obra> obras;
+    std::vector<Edicion> ediciones;
+    
+    // Índices para optimizar consultas
+    std::map<std::string, std::vector<int>> autorObras;        // ID autor -> índices de obras
+    std::map<std::string, std::vector<int>> editorialEdiciones; // ID editorial -> índices de ediciones
+    std::map<std::string, std::vector<int>> obraEdiciones;     // nombre obra -> índices de ediciones
+    
+    // Métodos auxiliares
+    int calcularEdad(const std::string& fechaNacimiento) const {
+        if (fechaNacimiento.empty()) return 0;
+        
+        size_t pos = fechaNacimiento.find_last_of("/-");
+        if (pos != std::string::npos && pos + 1 < fechaNacimiento.length()) {
+            std::string anioStr = fechaNacimiento.substr(pos + 1);
+            int anioNacimiento = std::stoi(anioStr);
+            return (anioNacimiento > 0) ? (2024 - anioNacimiento) : 0;
+        }
+        return 0;
+    }
+    
+    int extraerAnio(const std::string& fecha) const {
+        if (fecha.empty()) return 0;
+        
+        size_t pos = fecha.find_last_of("/-");
+        if (pos != std::string::npos && pos + 1 < fecha.length()) {
+            std::string anioStr = fecha.substr(pos + 1);
+            return std::stoi(anioStr);
+        }
+        return 0;
+    }
+    
+    std::string obtenerNombreEditorial(const std::string& idEditorial) const {
+        for (const auto& editorial : editoriales) {
+            if (editorial.id == idEditorial) {
+                return editorial.nombre;
+            }
+        }
+        return "Editorial no encontrada";
+    }
+    
+    std::string obtenerNombreAutor(const std::string& idAutor) const {
+        for (const auto& autor : autores) {
+            if (autor.id == idAutor) {
+                return autor.nombre + " " + autor.apellido;
+            }
+        }
+        return "Autor no encontrado";
+    }
+    
+    Autor* obtenerAutorPorId(const std::string& idAutor) {
+        for (auto& autor : autores) {
+            if (autor.id == idAutor) {
+                return &autor;
+            }
+        }
+        return nullptr;
+    }
+    
+    Editorial* obtenerEditorialPorId(const std::string& idEditorial) {
+        for (auto& editorial : editoriales) {
+            if (editorial.id == idEditorial) {
+                return &editorial;
+            }
+        }
+        return nullptr;
+    }
+    
+    void construirIndices() {
+        // Limpiar índices existentes
+        autorObras.clear();
+        editorialEdiciones.clear();
+        obraEdiciones.clear();
+        
+        // Construir índice autor-obras
+        for (size_t i = 0; i < obras.size(); ++i) {
+            autorObras[obras[i].idAutor].push_back(i);
+        }
+        
+        // Construir índice editorial-ediciones
+        for (size_t i = 0; i < ediciones.size(); ++i) {
+            editorialEdiciones[ediciones[i].idEditorial].push_back(i);
+        }
+        
+        // Construir índice obra-ediciones
+        for (size_t i = 0; i < ediciones.size(); ++i) {
+            obraEdiciones[ediciones[i].idObra].push_back(i);
+        }
+    }
+    
+    void guardarArchivo(const std::string& archivo, const std::string& tipo) {
+        std::ofstream file(archivo);
+        if (!file.is_open()) {
+            std::cout << "Error al abrir archivo: " << archivo << std::endl;
+            return;
+        }
+        
+        if (tipo == "autores") {
+            for (const auto& autor : autores) {
+                file << autor.id << ";" << autor.nombre << ";" << autor.apellido << ";" 
+                     << autor.sexo << ";" << autor.fechaNacimiento << ";" << autor.ciudadNacimiento << ";"
+                     << autor.paisNacimiento << ";" << autor.ciudadResidencia << ";" << autor.formacionBase << ";"
+                     << autor.anioInicioLiteratura << ";" << autor.anioPrimeraObra << std::endl;
+            }
+        } else if (tipo == "editoriales") {
+            for (const auto& editorial : editoriales) {
+                file << editorial.id << ";" << editorial.nombre << ";" 
+                     << editorial.ciudadPrincipal << ";" << editorial.paisPrincipal << std::endl;
+            }
+        } else if (tipo == "obras") {
+            for (const auto& obra : obras) {
+                file << obra.nombre << ";" << obra.tipoPoesia << ";" << obra.idAutor << std::endl;
+            }
+        } else if (tipo == "ediciones") {
+            for (const auto& edicion : ediciones) {
+                file << edicion.numeroEdicion << ";" << edicion.fechaPublicacion << ";" 
+                     << edicion.idEditorial << ";" << edicion.ciudadPublicacion << ";" 
+                     << edicion.idObra << std::endl;
+            }
+        }
+        file.close();
+    }
+
+public:
+    GestionBiblioteca() {}
+    
+    // Controladores para compatibilidad con el menú
+    class ControlAutores {
+    private:
+        std::vector<Autor>& autores;
+        
+    public:
+        ControlAutores(std::vector<Autor>& a) : autores(a) {}
+        
+        void agregar(const Autor& autor) {
+            autores.push_back(autor);
+        }
+        
+        void mostrarTodos() {
+            for (const auto& autor : autores) {
+                std::cout << "ID: " << autor.id << ", Nombre: " << autor.nombre << " " << autor.apellido
+                         << ", Sexo: " << autor.sexo << ", Nacimiento: " << autor.fechaNacimiento
+                         << ", Ciudad: " << autor.ciudadNacimiento << ", País: " << autor.paisNacimiento
+                         << ", Residencia: " << autor.ciudadResidencia << ", Formación: " << autor.formacionBase
+                         << ", Inicio literatura: " << autor.anioInicioLiteratura
+                         << ", Primera obra: " << autor.anioPrimeraObra << std::endl;
+            }
+        }
+        
+        Autor* buscarPorID(const std::string& id) {
+            for (auto& autor : autores) {
+                if (autor.id == id) {
+                    return &autor;
+                }
+            }
+            return nullptr;
+        }
+        
+        void eliminarPorID(const std::string& id, const std::string& archivo) {
+            autores.erase(std::remove_if(autores.begin(), autores.end(),
+                         [&id](const Autor& a) { return a.id == id; }), autores.end());
+            std::cout << "Autor eliminado.\n";
+        }
+    };
+    
+    class ControlEditoriales {
+    private:
+        std::vector<Editorial>& editoriales;
+        
+    public:
+        ControlEditoriales(std::vector<Editorial>& e) : editoriales(e) {}
+        
+        void agregar(const Editorial& editorial) {
+            editoriales.push_back(editorial);
+        }
+        
+        void mostrarTodos() {
+            for (const auto& editorial : editoriales) {
+                std::cout << "ID: " << editorial.id << ", Nombre: " << editorial.nombre
+                         << ", Ciudad: " << editorial.ciudadPrincipal << ", País: " << editorial.paisPrincipal << std::endl;
+            }
+        }
+        
+        Editorial* buscarPorID(const std::string& id) {
+            for (auto& editorial : editoriales) {
+                if (editorial.id == id) {
+                    return &editorial;
+                }
+            }
+            return nullptr;
+        }
+        
+        void eliminarPorID(const std::string& id, const std::string& archivo) {
+            editoriales.erase(std::remove_if(editoriales.begin(), editoriales.end(),
+                             [&id](const Editorial& e) { return e.id == id; }), editoriales.end());
+            std::cout << "Editorial eliminada.\n";
+        }
+    };
+    
+    class ControlObras {
+    private:
+        std::vector<Obra>& obras;
+        
+    public:
+        ControlObras(std::vector<Obra>& o) : obras(o) {}
+        
+        void agregar(const Obra& obra) {
+            obras.push_back(obra);
+        }
+        
+        void mostrarTodos() {
+            for (const auto& obra : obras) {
+                std::cout << "Nombre: " << obra.nombre << ", Tipo: " << obra.tipoPoesia
+                         << ", ID Autor: " << obra.idAutor << std::endl;
+            }
+        }
+        
+        void eliminarPorNombre(const std::string& nombre, const std::string& archivo) {
+            obras.erase(std::remove_if(obras.begin(), obras.end(),
+                       [&nombre](const Obra& o) { return o.nombre == nombre; }), obras.end());
+            std::cout << "Obra eliminada.\n";
+        }
+    };
+    
+    class ControlEdiciones {
+    private:
+        std::vector<Edicion>& ediciones;
+        
+    public:
+        ControlEdiciones(std::vector<Edicion>& e) : ediciones(e) {}
+        
+        void agregar(const Edicion& edicion) {
+            ediciones.push_back(edicion);
+        }
+        
+        void mostrarTodos() {
+            for (const auto& edicion : ediciones) {
+                std::cout << "Número: " << edicion.numeroEdicion << ", Fecha: " << edicion.fechaPublicacion
+                         << ", ID Editorial: " << edicion.idEditorial << ", Ciudad: " << edicion.ciudadPublicacion
+                         << ", ID Obra: " << edicion.idObra << std::endl;
+            }
+        }
+        
+        void eliminarPorNumero(int numero, const std::string& archivo) {
+            ediciones.erase(std::remove_if(ediciones.begin(), ediciones.end(),
+                           [numero](const Edicion& e) { return e.numeroEdicion == numero; }), ediciones.end());
+            std::cout << "Edición eliminada.\n";
+        }
+    };
+    
+    // Getters para los controladores
+    ControlAutores getControlAutores() { return ControlAutores(autores); }
+    ControlEditoriales getControlEditoriales() { return ControlEditoriales(editoriales); }
+    ControlObras getControlObras() { return ControlObras(obras); }
+    ControlEdiciones getControlEdiciones() { return ControlEdiciones(ediciones); }
+    
+    // Métodos de inicialización del sistema
+    void inicializarSistema() {
+        cargarAutores("autores.txt");
+        cargarEditoriales("editoriales.txt");
+        cargarObras("obras.txt");
+        cargarEdiciones("ediciones.txt");
+        construirIndices();
+        std::cout << "Sistema inicializado correctamente.\n";
+        std::cout << "Autores cargados: " << autores.size() << std::endl;
+        std::cout << "Editoriales cargadas: " << editoriales.size() << std::endl;
+        std::cout << "Obras cargadas: " << obras.size() << std::endl;
+        std::cout << "Ediciones cargadas: " << ediciones.size() << std::endl;
+    }
+    
+    void construirIndicesOptimizados() {
+        construirIndices();
+        std::cout << "Índices optimizados construidos.\n";
+    }
+    
+    void optimizarEstructuras() {
+        // Ordenar por ID para búsquedas más eficientes
+        std::sort(autores.begin(), autores.end(), [](const Autor& a, const Autor& b) {
+            return a.id < b.id;
+        });
+        std::sort(editoriales.begin(), editoriales.end(), [](const Editorial& a, const Editorial& b) {
+            return a.id < b.id;
+        });
+        construirIndices();
+        std::cout << "Estructuras optimizadas.\n";
+    }
+    
+    void guardarTodosSistema() {
+        guardarArchivo("autores.txt", "autores");
+        guardarArchivo("editoriales.txt", "editoriales");
+        guardarArchivo("obras.txt", "obras");
+        guardarArchivo("ediciones.txt", "ediciones");
+        std::cout << "Todos los datos guardados correctamente.\n";
+    }
+    
+    // Métodos de carga de datos
+    void cargarAutores(const std::string& archivo) {
+        std::ifstream file(archivo);
+        if (!file.is_open()) {
+            std::cout << "No se pudo abrir el archivo de autores: " << archivo << std::endl;
+            return;
+        }
+        
+        std::string linea;
+        while (std::getline(file, linea)) {
+            if (linea.empty()) continue;
+            
+            std::stringstream ss(linea);
+            std::string campo;
+            Autor autor;
+            
+            std::getline(ss, autor.id, ';');
+            std::getline(ss, autor.nombre, ';');
+            std::getline(ss, autor.apellido, ';');
+            std::getline(ss, campo, ';'); autor.sexo = campo.empty() ? ' ' : campo[0];
+            std::getline(ss, autor.fechaNacimiento, ';');
+            std::getline(ss, autor.ciudadNacimiento, ';');
+            std::getline(ss, autor.paisNacimiento, ';');
+            std::getline(ss, autor.ciudadResidencia, ';');
+            std::getline(ss, autor.formacionBase, ';');
+            std::getline(ss, campo, ';'); autor.anioInicioLiteratura = std::stoi(campo);
+            std::getline(ss, campo); autor.anioPrimeraObra = std::stoi(campo);
+            
+            autores.push_back(autor);
+        }
+        file.close();
+    }
+    
+    void cargarEditoriales(const std::string& archivo) {
+        std::ifstream file(archivo);
+        if (!file.is_open()) {
+            std::cout << "No se pudo abrir el archivo de editoriales: " << archivo << std::endl;
+            return;
+        }
+        
+        std::string linea;
+        while (std::getline(file, linea)) {
+            if (linea.empty()) continue;
+            
+            std::stringstream ss(linea);
+            Editorial editorial;
+            
+            std::getline(ss, editorial.id, ';');
+            std::getline(ss, editorial.nombre, ';');
+            std::getline(ss, editorial.ciudadPrincipal, ';');
+            std::getline(ss, editorial.paisPrincipal);
+            
+            editoriales.push_back(editorial);
+        }
+        file.close();
+    }
+    
+    void cargarObras(const std::string& archivo) {
+        std::ifstream file(archivo);
+        if (!file.is_open()) {
+            std::cout << "No se pudo abrir el archivo de obras: " << archivo << std::endl;
+            return;
+        }
+        
+        std::string linea;
+        while (std::getline(file, linea)) {
+            if (linea.empty()) continue;
+            
+            std::stringstream ss(linea);
+            Obra obra;
+            
+            std::getline(ss, obra.nombre, ';');
+            std::getline(ss, obra.tipoPoesia, ';');
+            std::getline(ss, obra.idAutor);
+            
+            obras.push_back(obra);
+        }
+        file.close();
+    }
+    
+    void cargarEdiciones(const std::string& archivo) {
+        std::ifstream file(archivo);
+        if (!file.is_open()) {
+            std::cout << "No se pudo abrir el archivo de ediciones: " << archivo << std::endl;
+            return;
+        }
+        
+        std::string linea;
+        while (std::getline(file, linea)) {
+            if (linea.empty()) continue;
+            
+            std::stringstream ss(linea);
+            std::string campo;
+            Edicion edicion;
+            
+            std::getline(ss, campo, ';'); edicion.numeroEdicion = std::stoi(campo);
+            std::getline(ss, edicion.fechaPublicacion, ';');
+            std::getline(ss, edicion.idEditorial, ';');
+            std::getline(ss, edicion.ciudadPublicacion, ';');
+            std::getline(ss, edicion.idObra);
+            
+            ediciones.push_back(edicion);
+        }
+        file.close();
+    }
+    
+    // CONSULTAS PRINCIPALES
+    
+    // Consulta 1: Obras de un autor por editorial y año
+    void consultaObrasAutorPorEditorialAnio(const std::string& idAutor) {
+        std::cout << "=== CONSULTA 1: Obras por Editorial y Año ===" << std::endl;
+        std::cout << "Autor: " << obtenerNombreAutor(idAutor) << std::endl;
+
+		    // DEBUG: Verificar si el autor existe en el índice
+    std::cout << "DEBUG: Buscando autor en índice..." << std::endl;
+    if (autorObras.find(idAutor) == autorObras.end()) {
+        std::cout << "DEBUG: Autor no encontrado en índice autorObras" << std::endl;
+        return;
+    }
+    std::cout << "DEBUG: Autor encontrado, tiene " << autorObras[idAutor].size() << " obras" << std::endl;
+    
+    // DEBUG: Mostrar las obras del autor
+    for (int idx : autorObras[idAutor]) {
+        std::cout << "DEBUG: Obra[" << idx << "]: " << obras[idx].nombre << std::endl;
+    }
+        
+        // Estructura: Editorial -> Año -> Contador de obras
+        std::map<std::string, std::map<int, int>> resultado;
+        
+        // Buscar obras del autor
+        if (autorObras.find(idAutor) != autorObras.end()) {
+            for (int idx : autorObras[idAutor]) {
+                const Obra& obra = obras[idx];
+                
+                // Buscar ediciones de esta obra
+                if (obraEdiciones.find(obra.nombre) != obraEdiciones.end()) {
+                    for (int edIdx : obraEdiciones[obra.nombre]) {
+                        const Edicion& edicion = ediciones[edIdx];
+                        int anio = extraerAnio(edicion.fechaPublicacion);
+                        resultado[edicion.idEditorial][anio]++;
+                    }
+                }
+            }
+        }
+        
+        // Mostrar resultados
+        if (resultado.empty()) {
+            std::cout << "No se encontraron obras para el autor especificado." << std::endl;
+            return;
+        }
+        
+        int totalObras = 0;
+        for (const auto& editorial : resultado) {
+            std::cout << "\nEditorial: " << obtenerNombreEditorial(editorial.first) << std::endl;
+            for (const auto& anio : editorial.second) {
+                std::cout << "  Año " << anio.first << ": " << anio.second << " obras" << std::endl;
+                totalObras += anio.second;
+            }
+        }
+        std::cout << "\nTotal de obras: " << totalObras << std::endl;
+    }
+    
+    // Consulta 2: Obras de un autor por tipo de poesía
+    void consultaObrasAutorPorTipoPoesia(const std::string& idAutor) {
+        std::cout << "=== CONSULTA 2: Obras por Tipo de Poesía ===" << std::endl;
+        std::cout << "Autor: " << obtenerNombreAutor(idAutor) << std::endl;
+        
+        // Estructura: Tipo -> Lista de obras con detalles
+        std::map<std::string, std::vector<std::pair<std::string, std::vector<std::pair<std::string, int>>>>> resultado;
+        
+        if (autorObras.find(idAutor) != autorObras.end()) {
+            for (int idx : autorObras[idAutor]) {
+                const Obra& obra = obras[idx];
+                std::vector<std::pair<std::string, int>> edicionesObra;
+                
+                // Buscar ediciones de esta obra
+                if (obraEdiciones.find(obra.nombre) != obraEdiciones.end()) {
+                    for (int edIdx : obraEdiciones[obra.nombre]) {
+                        const Edicion& edicion = ediciones[edIdx];
+                        edicionesObra.push_back({edicion.fechaPublicacion, edicion.numeroEdicion});
+                    }
+                }
+                
+                resultado[obra.tipoPoesia].push_back({obra.nombre, edicionesObra});
+            }
+        }
+        
+        // Mostrar resultados
+        if (resultado.empty()) {
+            std::cout << "No se encontraron obras para el autor especificado." << std::endl;
+            return;
+        }
+        
+        for (const auto& tipo : resultado) {
+            std::cout << "\nTipo de Poesía: " << tipo.first << std::endl;
+            for (const auto& obra : tipo.second) {
+                std::cout << "  Obra: " << obra.first << std::endl;
+                for (const auto& edicion : obra.second) {
+                    std::cout << "    - Fecha: " << edicion.first << ", Edición: " << edicion.second << std::endl;
+                }
+            }
+        }
+    }
+    
+    // Consulta 3: Autores publicados por editorial
+    void consultaAutoresPorEditorial(const std::string& idEditorial) {
+        std::cout << "=== CONSULTA 3: Autores por Editorial ===" << std::endl;
+        std::cout << "Editorial: " << obtenerNombreEditorial(idEditorial) << std::endl;
+        
+        // Estructura: Ciudad -> Año -> Lista de autores
+        std::map<std::string, std::map<int, std::vector<std::string>>> resultado;
+        std::set<std::string> autoresUnicos;
+        
+        if (editorialEdiciones.find(idEditorial) != editorialEdiciones.end()) {
+            for (int edIdx : editorialEdiciones[idEditorial]) {
+                const Edicion& edicion = ediciones[edIdx];
+                
+                // Buscar obra y autor
+                for (const auto& obra : obras) {
+                    if (obra.nombre == edicion.idObra) {
+                        Autor* autor = obtenerAutorPorId(obra.idAutor);
+                        if (autor && autoresUnicos.find(autor->id) == autoresUnicos.end()) {
+                            autoresUnicos.insert(autor->id);
+                            std::string info = autor->nombre + " " + autor->apellido + " - " + 
+                                             autor->ciudadNacimiento + ", " + autor->paisNacimiento;
+                            resultado[autor->ciudadResidencia][autor->anioInicioLiteratura].push_back(info);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Mostrar resultados
+        if (resultado.empty()) {
+            std::cout << "No se encontraron autores para la editorial especificada." << std::endl;
+            return;
+        }
+        
+        for (const auto& ciudad : resultado) {
+            std::cout << "\nCiudad de Residencia: " << ciudad.first << std::endl;
+            for (const auto& anio : ciudad.second) {
+                std::cout << "  Año de Inicio: " << anio.first << std::endl;
+                for (const auto& autor : anio.second) {
+                    std::cout << "    - " << autor << std::endl;
+                }
+            }
+        }
+    }
+    
+    // Consulta 4: Editoriales con más de N poetas
+    void consultaEditorialesConNPoetas(int numeroMinimo) {
+        std::cout << "=== CONSULTA 4: Editoriales con más de " << numeroMinimo << " poetas ===" << std::endl;
+        
+        // Contar poetas únicos por editorial
+        std::map<std::string, std::set<std::string>> poetasPorEditorial;
+        
+        for (const auto& edicion : ediciones) {
+            for (const auto& obra : obras) {
+                if (obra.nombre == edicion.idObra) {
+                    poetasPorEditorial[edicion.idEditorial].insert(obra.idAutor);
+                    break;
+                }
+            }
+        }
+        
+        // Mostrar resultados
+        int editorialesEncontradas = 0;
+        for (const auto& editorial : poetasPorEditorial) {
+            if (editorial.second.size() > numeroMinimo) {
+                editorialesEncontradas++;
+                Editorial* ed = obtenerEditorialPorId(editorial.first);
+                if (ed) {
+                    std::cout << "\nEditorial: " << ed->nombre << std::endl;
+                    std::cout << "  Ubicación: " << ed->ciudadPrincipal << ", " << ed->paisPrincipal << std::endl;
+                    std::cout << "  Cantidad de poetas: " << editorial.second.size() << std::endl;
+                }
+            }
+        }
+        
+        std::cout << "\nTotal de editoriales encontradas: " << editorialesEncontradas << std::endl;
+    }
+    
+    // Consulta 5: Autores por editorial clasificados por lugar de nacimiento
+    void consultaAutoresPorEditorialNacimiento(const std::string& idEditorial) {
+        std::cout << "=== CONSULTA 5: Autores por Editorial y Lugar de Nacimiento ===" << std::endl;
+        std::cout << "Editorial: " << obtenerNombreEditorial(idEditorial) << std::endl;
+        
+        // Estructura: País -> Ciudad -> Sexo -> Contador
+        std::map<std::string, std::map<std::string, std::map<char, int>>> resultado;
+        std::set<std::string> autoresUnicos;
+        
+        if (editorialEdiciones.find(idEditorial) != editorialEdiciones.end()) {
+            for (int edIdx : editorialEdiciones[idEditorial]) {
+                const Edicion& edicion = ediciones[edIdx];
+                
+                for (const auto& obra : obras) {
+                    if (obra.nombre == edicion.idObra) {
+                        Autor* autor = obtenerAutorPorId(obra.idAutor);
+                        if (autor && autoresUnicos.find(autor->id) == autoresUnicos.end()) {
+                            autoresUnicos.insert(autor->id);
+                            resultado[autor->paisNacimiento][autor->ciudadNacimiento][autor->sexo]++;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Mostrar resultados
+        if (resultado.empty()) {
+            std::cout << "No se encontraron autores para la editorial especificada." << std::endl;
+            return;
+        }
+        
+        for (const auto& pais : resultado) {
+            std::cout << "\nPaís: " << pais.first << std::endl;
+            for (const auto& ciudad : pais.second) {
+                std::cout << "  Ciudad: " << ciudad.first << std::endl;
+                int hombres = ciudad.second.count('M') ? ciudad.second.at('M') : 0;
+                int mujeres = ciudad.second.count('F') ? ciudad.second.at('F') : 0;
+                std::cout << "    Hombres: " << hombres << ", Mujeres: " << mujeres << std::endl;
+            }
+        }
+    }
+// Consulta 6: Autores por rango de edad y formación de base
+    void consultaAutoresPorEdadYFormacion(int edadMinima, int edadMaxima, const std::string& formacionBase) {
+        std::cout << "=== CONSULTA 6: Autores por Rango de Edad y Formación ===" << std::endl;
+        std::cout << "Rango de edad: " << edadMinima << " - " << edadMaxima << " años" << std::endl;
+        std::cout << "Formación de base: " << formacionBase << std::endl;
+        
+        // Estructura: Año de primera obra -> Lista de autores
+        std::map<int, std::vector<std::string>> autoresPorAnio;
+        
+        for (const auto& autor : autores) {
+            int edad = calcularEdad(autor.fechaNacimiento);
+            
+            // Verificar si el autor cumple con los criterios
+            if (edad >= edadMinima && edad <= edadMaxima && 
+                autor.formacionBase == formacionBase) {
+                
+                std::string infoAutor = autor.nombre + " " + autor.apellido + 
+                                       " (Edad: " + std::to_string(edad) + 
+                                       ", Residencia: " + autor.ciudadResidencia + 
+                                       ", Nacimiento: " + autor.ciudadNacimiento + ", " + autor.paisNacimiento + ")";
+                
+                autoresPorAnio[autor.anioPrimeraObra].push_back(infoAutor);
+            }
+        }
+        
+        // Mostrar resultados
+        if (autoresPorAnio.empty()) {
+            std::cout << "No se encontraron autores con los criterios especificados." << std::endl;
+            return;
+        }
+        
+        int totalAutores = 0;
+        for (const auto& anio : autoresPorAnio) {
+            std::cout << "\nAño de primera obra: " << anio.first << std::endl;
+            for (const auto& autor : anio.second) {
+                std::cout << "  - " << autor << std::endl;
+                totalAutores++;
+            }
+        }
+        
+        std::cout << "\nTotal de autores encontrados: " << totalAutores << std::endl;
+    }
+    
+    // Consulta 7: Autores por tipo de poesía y editorial
+    void consultaAutoresPorTipoPoesiaYEditorial(const std::string& tipoPoesia, const std::string& idEditorial) {
+        std::cout << "=== CONSULTA 7: Autores por Tipo de Poesía y Editorial ===" << std::endl;
+        std::cout << "Tipo de poesía: " << tipoPoesia << std::endl;
+        std::cout << "Editorial: " << obtenerNombreEditorial(idEditorial) << std::endl;
+        
+        // Estructura: ID Autor -> Información del autor y sus ediciones
+        std::map<std::string, std::pair<std::string, std::vector<std::string>>> autoresConEdiciones;
+        
+        // Buscar obras del tipo de poesía especificado
+        for (const auto& obra : obras) {
+            if (obra.tipoPoesia == tipoPoesia) {
+                // Buscar ediciones de esta obra en la editorial especificada
+                for (const auto& edicion : ediciones) {
+                    if (edicion.idObra == obra.nombre && edicion.idEditorial == idEditorial) {
+                        
+                        // Obtener información del autor
+                        std::string infoAutor = obtenerNombreAutor(obra.idAutor);
+                        Autor* autor = obtenerAutorPorId(obra.idAutor);
+                        
+                        if (autor) {
+                            std::string datosCompletos = infoAutor + 
+                                                       " (Sexo: " + std::string(1, autor->sexo) + 
+                                                       ", Nacimiento: " + autor->fechaNacimiento + 
+                                                       ", " + autor->ciudadNacimiento + ", " + autor->paisNacimiento + 
+                                                       ", Residencia: " + autor->ciudadResidencia + 
+                                                       ", Formación: " + autor->formacionBase + ")";
+                            
+                            // Información de la edición
+                            std::string infoEdicion = "Obra: " + obra.nombre + 
+                                                    ", Edición #" + std::to_string(edicion.numeroEdicion) + 
+                                                    ", Fecha: " + edicion.fechaPublicacion + 
+                                                    ", Ciudad: " + edicion.ciudadPublicacion;
+                            
+                            // Si es la primera vez que vemos este autor, guardar sus datos
+                            if (autoresConEdiciones.find(obra.idAutor) == autoresConEdiciones.end()) {
+                                autoresConEdiciones[obra.idAutor] = {datosCompletos, {}};
+                            }
+                            
+                            // Agregar información de la edición
+                            autoresConEdiciones[obra.idAutor].second.push_back(infoEdicion);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Mostrar resultados
+        if (autoresConEdiciones.empty()) {
+            std::cout << "No se encontraron autores con los criterios especificados." << std::endl;
+            return;
+        }
+        
+        int totalAutores = 0;
+        int totalEdiciones = 0;
+        
+        for (const auto& autorInfo : autoresConEdiciones) {
+            totalAutores++;
+            std::cout << "\nAutor: " << autorInfo.second.first << std::endl;
+            std::cout << "Ediciones encontradas:" << std::endl;
+            
+            for (const auto& edicion : autorInfo.second.second) {
+                std::cout << "  - " << edicion << std::endl;
+                totalEdiciones++;
+            }
+        }
+        
+        std::cout << "\nResumen:" << std::endl;
+        std::cout << "Total de autores: " << totalAutores << std::endl;
+        std::cout << "Total de ediciones: " << totalEdiciones << std::endl;
+    }
 };
 
 #endif // GESTIONBIBLIOTECA_H

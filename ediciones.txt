@@ -1,3 +1,5 @@
-1;05/06/1967;ED001;Ciudad de México;Cien años de soledad
-2;15/08/1924;ED003;Santiago;Veinte poemas de amor
-3;10/02/2010;ED002;Bogotá;Ingeniera de versos
+1;10-06-2001;E001;Bogota;Flores del Alma
+2;12-08-2005;E002;Medellin;Flores del Alma
+1;01-10-1996;E003;Quito;Versos Andinos
+1;30-04-2016;E002;Medellin;Tecnopoesia
+2;15-09-2018;E001;Bogota;Tecnopoesia

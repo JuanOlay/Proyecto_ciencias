@@ -1,3 +1,3 @@
-Cien años de soledad;verso libre;A001
-Veinte poemas de amor;soneto;A002
-Ingeniera de versos;haiku;A003
+Flores del Alma;soneto;A001
+Versos Andinos;haiku;A002
+Tecnopoesia;verso libre;A003

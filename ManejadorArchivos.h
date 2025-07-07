@@ -53,7 +53,7 @@ public:
 	            contadorCampos++;
 	        }
 	        if (contadorCampos != 4) {
-	            std::cout << "Línea " << numLinea << " ignorada (formato inválido): " << linea << "\n";
+	            std::cout << "Lï¿½nea " << numLinea << " ignorada (formato invï¿½lido): " << linea << "\n";
 	            continue;
 	        }
 	
@@ -65,7 +65,7 @@ public:
 	        getline(ss, e.paisPrincipal);
 	
 	        if (e.id.empty()) {
-	            std::cout << "Línea " << numLinea << " ignorada (ID vacío): " << linea << "\n";
+	            std::cout << "Lï¿½nea " << numLinea << " ignorada (ID vacï¿½o): " << linea << "\n";
 	            continue;
 	        }
 	
@@ -242,7 +242,7 @@ public:
             getline(ss, campo, ';'); e.numeroEdicion = std::atoi(limpiarNumero(campo).c_str());
             getline(ss, e.fechaPublicacion, ';');
             getline(ss, e.idEditorial, ';');
-            getline(ss, e.ciudadPublicacion);
+            getline(ss, e.ciudadPublicacion, ';');
             getline(ss, e.idObra);
 
             arbolEdiciones.insertar(e.numeroEdicion, e);
@@ -256,37 +256,7 @@ public:
         archivo.close();
     }
 
-	static void cargarEdiciones(const std::string& ruta, 
-                              Lista<Edicion>& listaEdiciones, 
-                              Multilista<std::string, std::string>& editorialAnios) {
-        std::ifstream archivo(ruta);
-        if (!archivo.is_open()) {
-            std::cout << "Error al abrir archivo de ediciones." << std::endl;
-            return;
-        }
 
-        std::string linea;
-        while (getline(archivo, linea)) {
-            Edicion e;
-            std::stringstream ss(linea);
-            std::string campo;
-
-            getline(ss, campo, ';'); e.numeroEdicion = std::atoi(limpiarNumero(campo).c_str());
-            getline(ss, e.fechaPublicacion, ';');
-            getline(ss, e.idEditorial, ';');
-            getline(ss, e.ciudadPublicacion);
-            getline(ss, e.idObra);
-
-            listaEdiciones.insertarFinal(e);
-            
-            // Construir Ã­ndice para consulta 1: editorial y aÃ±os
-            int anio = extraerAnio(e.fechaPublicacion);
-            std::string valorAnio = construirClaveAnioEdicion(anio, e.numeroEdicion);
-            editorialAnios.insertarEnSublista(e.idEditorial, valorAnio);
-        }
-
-        archivo.close();
-    }
     
     // MÃ©todo especializado para construir Ã­ndices cruzados entre archivos
     static void construirIndicesRelacionados(
@@ -452,6 +422,42 @@ public:
         
         return true; // Placeholder
     }
+    static void convertirListaAutoresAArbol(Lista<Autor>& lista, ArbolRojiNegro<Autor>& arbol) {
+    Nodo<Autor>* actual = lista.getCabeza(); // âœ… usar getCabeza()
+    while (actual != nullptr) {
+        arbol.insertar(atoi(actual->dato.id.c_str()), actual->dato);
+        actual = actual->siguiente;
+    }
+}
+static void cargarEdiciones(const std::string& ruta, Lista<Edicion>& lista, Multilista<std::string, std::string>& editorialAnios) {
+	std::ifstream archivo(ruta);
+	if (!archivo.is_open()) return;
+
+	std::string linea;
+	while (std::getline(archivo, linea)) {
+		std::stringstream ss(linea);
+		std::string idObra, idEditorial, fechaPublicacion;
+		int numeroEdicion;
+
+		std::getline(ss, idObra, ',');
+		std::getline(ss, idEditorial, ',');
+		std::getline(ss, fechaPublicacion, ',');
+		ss >> numeroEdicion;
+
+		Edicion edicion(idObra, idEditorial, fechaPublicacion, numeroEdicion);
+		lista.insertarFinal(edicion);
+
+		std::string anio = fechaPublicacion.substr(fechaPublicacion.find_last_of("/-") + 1);
+		std::string valor = anio + "-" + idObra;
+
+		if (!editorialAnios.existe(idEditorial)) {
+			editorialAnios.insertar(idEditorial);
+		}
+		editorialAnios.insertarEnSublista(idEditorial, valor);
+	}
+	archivo.close();
+}
+
 };
 
 #endif // MANEJADORARCHIVOS_H

@@ -1,2 +1,3 @@
-A001;Juan;Pérez;M;01/01/1990;Bogotá;Colombia;Medellín;literatura;2005;2010
-A002;Laura;Gómez;F;02/02/1992;Cali;Colombia;Cali;artes;2010;2015
+A001;Juan;Perez;M;10-05-1980;Bogota;Colombia;Medellin;literatura;2000;2001
+A002;Ana;Gomez;F;15-07-1975;Cali;Colombia;Bogota;ciencias sociales;1995;1996
+A003;Carlos;Ramirez;M;21-03-1990;Quito;Ecuador;Guayaquil;ingenierias;2015;2016
